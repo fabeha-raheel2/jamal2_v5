@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="paused" default="false"/>
+    <arg name="debug" default="false"/>
+    <arg name="model" default="$(find jamal2_v5)/urdf/jamal2_v5.urdf"/>
+  <!--  <arg name="gazebo_world" default="$(find champ_gazebo)/worlds/outdoor.world" /> -->
+
+    <!-- Include Gazebo World -->
+    <include file="$(find jamal2_v5)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find jamal2_v5)/worlds"/>
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="headless" value="$(arg headless)"/>
+    </include>
+
+    <!-- Load URDF into Parameter Server -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)"/>
+
+    <!-- Load Joint Controllers -->
+    <rosparam file="$(find jamal2_v5)/config/jamal2_joint_control.yaml" command="load"/>
+
+    <!-- Spawn Controllers -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/jamal2_v5"
+        args="lh_hip_joint_position_controller lh_upper_leg_joint_position_controller lh_lower_leg_joint_position_controller 
+              lf_hip_joint_position_controller lf_upper_leg_joint_position_controller lf_lower_leg_joint_position_controller 
+              rh_hip_joint_position_controller rh_upper_leg_joint_position_controller rh_lower_leg_joint_position_controller 
+              rf_hip_joint_position_controller rf_upper_leg_joint_position_controller rf_lower_leg_joint_position_controller 
+              joint_state_controller"/>
+
+    <!-- Spawn Robot Model at 0.6m Height -->
+    <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-file $(arg model) -urdf -model jamal2_v5 -z 0.7" />
+
+    <!-- Convert Joint States to TF Transforms for RViz -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        respawn="false" output="screen">
+        <remap from="/joint_states" to="/jamal_v2/joint_states"/>
+    </node>
+
+    <!-- Ensure Joint State Publisher Runs -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" output="screen" />
+
+    <!-- <node name="jamal2_gait" pkg="jamal2_v5" type="jamalv2_sit.py" output="screen"/> -->
+
+    <!-- <node name="jamalv2_joint_state_pub" pkg="jamalv2_urdf4" type="jamalv2_joint_state_pub.py" output="screen"/> -->
+
+</launch>
+

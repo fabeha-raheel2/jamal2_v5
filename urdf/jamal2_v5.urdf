@@ -1,0 +1,1287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="jamal2_v5">
+  <link
+    name="base_link">
+    <!-- <inertial>
+      <origin
+        xyz="0.0249506925964693 0.000802919403175578 0.0012439306105544"
+        rpy="0 0 0" />
+      <mass
+        value="11.75" />
+      <inertia
+       	ixx="0.0565900000000"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.1660600000000"
+        iyz="0.0"
+        izz="0.2001200000000" />
+    </inertial> -->
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="base_inertia">
+    <inertial>
+      <origin xyz="-0.010 0 0"/>
+      <mass value="11.75"/>
+      <inertia
+      	ixx="0.0565900000000"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.1660600000000"
+        iyz="0.0"
+        izz="0.2001200000000" />
+    </inertial>
+  </link>
+  <joint name="base_link_to_base_inertia" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_inertia"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+  <link
+    name="lf_hip_link">
+    <inertial>
+      <origin
+        xyz="-0.00339550828476409 -0.000904087285408195 -3.93218339349122E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.9" />
+      <!-- <inertia
+        ixx="0.000702439643568085"
+        ixy="1.25032111453368E-06"
+        ixz="-7.25541644458934E-07"
+        iyy="0.000929663974260124"
+        iyz="-9.35472930100196E-07"
+        izz="0.000676322470473343" />
+        </inertial> -->
+      <inertia
+        ixx="0.00035687"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.00065235"
+        iyz="0.0"
+        izz="0.00052753" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lf_hip_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lf_hip_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lf_hip_joint"
+    type="revolute">
+    <origin
+      xyz="0.2709 0.0804499999999991 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="lf_hip_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="lf_upper_leg_link">
+    <inertial>
+      <origin
+        xyz="-0.000671046034244019 -0.0302253641306092 -0.0144678808109222"
+        rpy="0 0 0" />
+      <mass
+        value="1.3" />
+      <!-- <inertia
+        ixx="0.00228667098156523"
+        ixy="-2.75612379936843E-06"
+        ixz="-7.98320755954416E-05"
+        iyy="0.00273760022612408"
+        iyz="4.20525016351804E-06"
+        izz="0.000958847609190241" />
+        </inertial> -->
+
+    <inertia
+        ixx="0.00502768"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.00407764"
+        iyz="0.0"
+        izz="0.00172122" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lf_upper_leg_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lf_upper_leg_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lf_upper_leg_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.10705 0"
+      rpy="0 0 0" />
+    <parent
+      link="lf_hip_link" />
+    <child
+      link="lf_upper_leg_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="lf_lower_leg_link">
+    <inertial>
+      <origin
+        xyz="0.0103069670980445 8.8674414934875E-05 -0.0839291622348222"
+        rpy="0 0 0" />
+      <mass
+        value="0.150" />
+      <!-- <inertia
+        ixx="0.000120718040828395"
+        ixy="-3.88196478976417E-09"
+        ixz="1.85607542062846E-05"
+        iyy="0.000125474349450579"
+        iyz="4.28401025061769E-08"
+        izz="5.28907618063082E-06" /> 
+         </inertial>-->
+
+      <inertia
+        ixx="0.0001228100000"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0001254700000"
+        iyz="0.0"
+        izz="0.0" />
+
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lf_lower_leg_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lf_lower_leg_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lf_lower_leg_joint"
+    type="revolute">
+    <origin
+      xyz="0.00167691666386546 0 -0.22499375091434"
+      rpy="0 0 0" />
+    <parent
+      link="lf_upper_leg_link" />
+    <child
+      link="lf_lower_leg_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="lf_foot_link">
+    <inertial>
+      <origin
+        xyz="0.00893731403573057 5.86075363651073E-06 0.0227015493807513"
+        rpy="0 0 0" />
+      <mass
+        value="0.0320640218816045" />
+      <inertia
+        ixx="0.000004011650"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.000004180755"
+        iyz="0.0"
+        izz="0.000003635190" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lf_foot_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <sphere radius="0.005"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lf_foot_joint"
+    type="fixed">
+    <origin
+      xyz="-0.00157691666386468 5.00000000003276E-05 -0.24800624908566"
+      rpy="0 0 0" />
+    <parent
+      link="lf_lower_leg_link" />
+    <child
+      link="lf_foot_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="lh_hip_link">
+    <inertial>
+      <origin
+        xyz="0.00339550828476404 -0.0009040872854085 3.93218339348513E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.9" />
+      <!-- <inertia
+        ixx="0.000702439643568084"
+        ixy="-1.25032111453371E-06"
+        ixz="-7.25541644458905E-07"
+        iyy="0.000929663974260124"
+        iyz="9.3547293009956E-07"
+        izz="0.000676322470473343" />
+    </inertial> -->
+
+
+      <inertia
+        ixx="0.0003180000000"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0004208600000"
+        iyz="0.0"
+        izz="0.0003061700000" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lh_hip_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lh_hip_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lh_hip_joint"
+    type="revolute">
+    <origin
+      xyz="-0.2689 0.0804500000000009 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="lh_hip_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="lh_upper_leg_link">
+    <inertial>
+      <origin
+        xyz="-0.000671046033593636 -0.0302253641290889 -0.0144678808132316"
+        rpy="0 0 0" />
+      <mass
+        value="1.3" />
+      <!-- <inertia
+        ixx="0.00228667098156876"
+        ixy="-2.75612379928294E-06"
+        ixz="-7.98320755990536E-05"
+        iyy="0.00273760022615098"
+        iyz="4.20525016309035E-06"
+        izz="0.000958847609213723" />
+    </inertial> -->
+
+      <inertia
+        ixx="0.00502768"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.00407764"
+        iyz="0.0"
+        izz="0.00172122" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lh_upper_leg_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lh_upper_leg_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lh_upper_leg_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.10705 0"
+      rpy="0 0 0" />
+    <parent
+      link="lh_hip_link" />
+    <child
+      link="lh_upper_leg_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="lh_lower_leg_link">
+    <inertial>
+      <origin
+        xyz="0.0126339989859747 8.86744077252255E-05 -0.0839238523331708"
+        rpy="0 0 0" />
+      <mass
+        value="0.150" />
+      <!-- <inertia
+        ixx="0.000120718040315172"
+        ixy="-3.881963654258E-09"
+        ixz="1.85607542316558E-05"
+        iyy="0.000125474348953854"
+        iyz="4.28400179256088E-08"
+        izz="5.28907618790691E-06" />
+    </inertial> -->
+
+        <inertia
+        ixx="0.0001224000000"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0001254700000"
+        iyz="0.0"
+        izz="0.000003609600" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lh_lower_leg_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lh_lower_leg_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lh_lower_leg_joint"
+    type="revolute">
+    <origin
+      xyz="-0.000650115239932358 0 -0.224999060776206"
+      rpy="0 0 0" />
+    <parent
+      link="lh_upper_leg_link" />
+    <child
+      link="lh_lower_leg_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="lh_foot_link">
+    <inertial>
+      <origin
+        xyz="0.00913734597626592 5.88313199131885E-06 0.0227015939594583"
+        rpy="0 0 0" />
+      <mass
+        value="0.0320638174515656" />
+      <!-- <inertia
+        ixx="8.73122748394013E-06"
+        ixy="-1.66616420524376E-10"
+        ixz="-1.69244980389252E-06"
+        iyy="9.25979243437323E-06"
+        iyz="-3.63287907920186E-09"
+        izz="4.39464293100557E-06" />
+    </inertial> -->
+
+      <inertia
+        ixx="0.000000402415478"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.00000418078633"
+        iyz="0.0"
+        izz="0.00000362279264" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/lh_foot_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <sphere radius="0.005"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lh_foot_joint"
+    type="fixed">
+    <origin
+      xyz="0.000550115239932258 5.00000000001888E-05 -0.248000939223794"
+      rpy="0 0 0" />
+    <parent
+      link="lh_lower_leg_link" />
+    <child
+      link="lh_foot_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="rf_hip_link">
+    <inertial>
+      <origin
+        xyz="-0.00339550828476406 0.000904087285408264 3.93218339347566E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.9" />
+      <!-- <inertia
+        ixx="0.000702439643568084"
+        ixy="-1.25032111453343E-06"
+        ixz="7.2554164445892E-07"
+        iyy="0.000929663974260123"
+        iyz="-9.35472930099867E-07"
+        izz="0.000676322470473343" />
+    </inertial> -->
+
+      <inertia
+        ixx="0.0003180000000"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0004208600000"
+        iyz="0.0"
+        izz="0.0003061700000" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rf_hip_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rf_hip_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rf_hip_joint"
+    type="revolute">
+    <origin
+      xyz="0.2709 -0.080450000000001 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rf_hip_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="rf_upper_leg_link">
+    <inertial>
+      <origin
+        xyz="-0.00176952960662956 0.0302157290390143 -0.014525532740339"
+        rpy="0 0 0" />
+      <mass
+        value="1.3" />
+      <!-- <inertia
+        ixx="0.000869743161648488"
+        ixy="-1.67369613445489E-06"
+        ixz="-3.03509314293408E-05"
+        iyy="0.00104056106038565"
+        iyz="-1.50831559380622E-06"
+        izz="0.000363532022785296" />
+    </inertial> -->
+
+      <inertia
+        ixx="0.00502768"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.00407764"
+        iyz="0.0"
+        izz="0.00172122" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rf_upper_leg_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rf_upper_leg_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rf_upper_leg_joint"
+    type="revolute">
+    <origin
+      xyz="0 -0.10705 0"
+      rpy="0 0 0" />
+    <parent
+      link="rf_hip_link" />
+    <child
+      link="rf_upper_leg_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+  </joint>
+  <link
+    name="rf_lower_leg_link">
+    <inertial>
+      <origin
+        xyz="0.0102527392769851 -1.13256009847129E-05 -0.0839295728842211"
+        rpy="0 0 0" />
+      <mass
+        value="0.150" />
+      <!-- <inertia
+        ixx="0.000120718040321659"
+        ixy="-3.88196606377571E-09"
+        ixz="1.85607542427816E-05"
+        iyy="0.000125474348967683"
+        iyz="4.28400288498383E-08"
+        izz="5.28907619206306E-06" />
+    </inertial> -->
+
+      <inertia
+        ixx="0.0001231600000"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0001254700000"
+        iyz="0.0"
+        izz="0.000002850100" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rf_lower_leg_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rf_lower_leg_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rf_lower_leg_joint"
+    type="revolute">
+    <origin
+      xyz="0.00173114446018699 0 -0.224993340210012"
+      rpy="0 0 0" />
+    <parent
+      link="rf_upper_leg_link" />
+    <child
+      link="rf_lower_leg_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="rf_foot_link">
+    <inertial>
+      <origin
+        xyz="0.00893728377743531 5.90963237645514E-06 0.0227015439249714"
+        rpy="0 0 0" />
+      <mass
+        value="0.0320640030654593" />
+      <inertia
+        ixx="0.0000003998133"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0000004180799"
+        iyz="0.0"
+        izz="0.000003648803" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rf_foot_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <sphere radius="0.005"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rf_foot_joint"
+    type="fixed">
+    <origin
+      xyz="-0.0016311444601869 -5.00000000001333E-05 -0.248006659789989"
+      rpy="0 0 0" />
+    <parent
+      link="rf_lower_leg_link" />
+    <child
+      link="rf_foot_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="rh_hip_link">
+    <inertial>
+      <origin
+        xyz="0.0033955082847642 0.000904087285408431 -3.93218339348663E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.9" />
+      <!-- <inertia
+        ixx="0.000702439643568084"
+        ixy="1.25032111453346E-06"
+        ixz="7.25541644458941E-07"
+        iyy="0.000929663974260124"
+        iyz="9.3547293009996E-07"
+        izz="0.000676322470473343" />
+    </inertial> -->
+
+          <inertia
+        ixx="0.0003180000000"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0004208600000"
+        iyz="0.0"
+        izz="0.0003061700000" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rh_hip_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rh_hip_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rh_hip_joint"
+    type="revolute">
+    <origin
+      xyz="-0.2689 -0.0804499999999991 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rh_hip_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="rh_upper_leg_link">
+    <inertial>
+      <origin
+        xyz="-0.00176953234561411 0.0302157260207732 -0.014525535930203"
+        rpy="0 0 0" />
+      <mass
+        value="1.3" />
+      <!-- <inertia
+        ixx="0.000869743192741815"
+        ixy="-1.67368835476559E-06"
+        ixz="-3.03509013469123E-05"
+        iyy="0.00104056112126458"
+        iyz="-1.50832276052866E-06"
+        izz="0.000363532056269678" />
+    </inertial> -->
+
+        
+      <inertia
+        ixx="0.00502768"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.00407764"
+        iyz="0.0"
+        izz="0.00172122" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rh_upper_leg_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rh_upper_leg_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rh_upper_leg_joint"
+    type="revolute">
+    <origin
+      xyz="0 -0.10705 0"
+      rpy="0 0 0" />
+    <parent
+      link="rh_hip_link" />
+    <child
+      link="rh_upper_leg_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="rh_lower_leg_link">
+    <inertial>
+      <origin
+        xyz="0.013898625304367 -1.13255977724769E-05 -0.0839310604501493"
+        rpy="0 0 0" />
+      <mass
+        value="0.150" />
+      <!-- <inertia
+        ixx="0.000120718040301437"
+        ixy="-3.88196426368193E-09"
+        ixz="1.85607542302214E-05"
+        iyy="0.00012547434894191"
+        iyz="4.28400225661251E-08"
+        izz="5.28907618721621E-06" />
+    </inertial> -->
+
+      <inertia
+        ixx="0.0001222200000"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0001254700000"
+        iyz="0.0"
+        izz="0.000003787300" />
+    </inertial>
+
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rh_lower_leg_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rh_lower_leg_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rh_lower_leg_joint"
+    type="revolute">
+    <origin
+      xyz="-0.00191474156111915 0 -0.224991852663056"
+      rpy="0 0 0" />
+    <parent
+      link="rh_upper_leg_link" />
+    <child
+      link="rh_lower_leg_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="60"
+      velocity="5.02" />
+    <dynamics
+      damping="0.2"
+      friction="0.2" />
+  </joint>
+  <link
+    name="rh_foot_link">
+    <inertial>
+      <origin
+        xyz="0.00913733992079968 5.86350800374502E-06 0.0227015224447085"
+        rpy="0 0 0" />
+      <mass
+        value="0.0368002676392" />
+      <!-- <inertia
+        ixx="8.73127502508842E-06"
+        ixy="-1.66697989066406E-10"
+        ixz="-1.6924521524561E-06"
+        iyy="9.25983498553823E-06"
+        iyz="-3.63984342154958E-09"
+        izz="4.39466053761759E-06" />
+    </inertial> -->
+
+      <inertia
+        ixx="0.00000402877298"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.00000418077603"
+        iyz="0.0"
+        izz="0.00000361810947" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://jamal2_v5/meshes/rh_foot_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <sphere radius="0.005"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rh_foot_joint"
+    type="fixed">
+    <origin
+      xyz="0.00181474156111877 -5.000000000005E-05 -0.248008147336944"
+      rpy="0 0 0" />
+    <parent
+      link="rh_lower_leg_link" />
+    <child
+      link="rh_foot_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+
+
+  <transmission name="lh_hip_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="lh_hip_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="lh_hip_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+     <transmission name="lh_upper_leg_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="lh_upper_leg_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="lh_upper_leg_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+      <transmission name="lh_lower_leg_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="lh_lower_leg_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="lh_lower_leg_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+ 
+    <transmission name="lf_hip_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="lf_hip_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="lf_hip_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+     <transmission name="lf_upper_leg_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="lf_upper_leg_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="lf_upper_leg_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+      <transmission name="lf_lower_leg_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="lf_lower_leg_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="lf_lower_leg_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+   <transmission name="rh_hip_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rh_hip_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rh_hip_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+     <transmission name="rh_upper_leg_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rh_upper_leg_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rh_upper_leg_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+      <transmission name="rh_lower_leg_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rh_lower_leg_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rh_lower_leg_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+ 
+    <transmission name="rf_hip_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rf_hip_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rf_hip_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+     <transmission name="rf_upper_leg_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rf_upper_leg_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rf_upper_leg_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+ 
+      <transmission name="rf_lower_leg_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rf_lower_leg_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rf_lower_leg_actuator">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+ </transmission>
+
+ 
+<gazebo>
+  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    <robotNamespace>/jamal2_v5</robotNamespace>
+  </plugin>
+</gazebo>
+
+</robot>
