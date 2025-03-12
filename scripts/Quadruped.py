@@ -248,34 +248,13 @@ class Quadruped:
                     
                 rate.sleep()
 
-            x_e, y_e, z_e = self.elliptical_trajectory(x_pre, y_pre, z_pre, L, H, W, self.trapezoidal_profile, t_range)
-
-            for i in range(len(x_e)):
-                curr_x_e = x_e[i]
-                curr_y_e = y_e[i]
-                curr_z_e = z_e[i]
-
-                rospy.loginfo("Current trajectory values: x_e={}, y_e={}, z_e={}".format(curr_x_e, curr_y_e, curr_z_e))
-                # rospy.loginfo("Current trajectory values: x_t={}, y_t={}, z_t={}".format(curr_x_t, curr_y_t, curr_z_t))
-
-                joint_angles = self.compute_inv_kinematics([curr_x_e, curr_y_e, curr_z_e])
-
-                rospy.loginfo("Publishing joint commands: {}".format(joint_angles))
-                self.publish_leg_commands(leg=leg, joint_angles=joint_angles)
-                    
-                rate.sleep()
-
-            # x_e_out, y_e, z_e = elliptical_trajectory(x_pre, y_pre, z_pre, L, H, W, linear_displacement, t_range)
             x_t_out, y_t, z_t = self.translation(L*2, x_pre, y_pre, y_pre, z_pre, z_pre, t_range) # -0.1, 0.0
-            x_t_out_l, y_t, z_t = self.translation(x_pre, -L*2, y_pre, y_pre, z_pre, z_pre, t_range)# 0.0, 0.1
 
             for i in range(len(x_e)):
                 curr_x_t_out = x_t_out[i]
-                curr_x_t_out_l = x_t_out_l[i]
                 curr_y_t = y_t[i]
                 curr_z_t = z_t[i]
 
-                # rospy.loginfo("Current trajectory values: x_e_out={}, x_e_out={}, y_e={}, z_e={}".format(curr_x_e_out, curr_x_e_out, curr_y_e, curr_z_e))
                 rospy.loginfo("Current trajectory values: x_t_out={}, x_e_out={}, y_t={}, z_t={}".format(curr_x_t_out, curr_x_t_out, curr_y_t, curr_z_t))
 
                 joint_angles = self.compute_inv_kinematics([curr_x_t_out, curr_y_t, curr_z_t])
