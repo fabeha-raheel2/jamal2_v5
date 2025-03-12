@@ -228,7 +228,7 @@ class Quadruped:
 
         return x, y, z
     
-    def move_legs_ellipse(self, leg, x_pre, y_pre, z_pre, L, H, W, t_range):
+    def move_single_leg_ellipse(self, leg, x_pre, y_pre, z_pre, L, H, W, t_range):
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             x_e, y_e, z_e = self.elliptical_trajectory(x_pre, y_pre, z_pre, L, H, W, self.trapezoidal_profile, t_range)

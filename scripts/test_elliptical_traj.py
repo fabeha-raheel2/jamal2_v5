@@ -23,4 +23,4 @@ t_range = np.linspace(0, np.pi, 100)
 jamal2 = Quadruped(ns=robotNameSpace, debug_mode=True)
 jamal2.set_link_lengths([L1, L2, L3])
 
-jamal2.move_legs_ellipse(leg="rf", x_pre=x_pre, y_pre=y_pre, z_pre=z_pre, L=L, W=W, H=H, t_range=t_range)
+jamal2.move_single_leg_ellipse(leg="rf", x_pre=x_pre, y_pre=y_pre, z_pre=z_pre, L=L, W=W, H=H, t_range=t_range)
