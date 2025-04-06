@@ -85,6 +85,12 @@ class Quadruped:
 
             self.controllers = QuadrupedJointControllers(ns=self.ns)
 
+        self.leg_state = {  'rf': 0,
+                            'lf': 0,
+                            'rh': 0,
+                            'lh': 0
+                            }
+
     def set_link_lengths(self, link_lengths):
         self.link_lengths = link_lengths
 
@@ -143,11 +149,24 @@ class Quadruped:
 
     def publish_leg_commands(self, leg, joint_angles):
         
-        for pub, angle in zip(self.controllers.leg_publishers[leg],joint_angles):
-            try:
-                pub.publish(Float64(angle))
-            except rospy.ROSException as e:
-                rospy.logerr(f"Failed to publish command: {e}")
+        if self.leg_state[leg] == 0:
+            
+            if leg == 'lf' or leg == 'lh':
+                new_joint_angles = (-joint_angles[0], joint_angles[1], joint_angles[2])
+                joint_angles = new_joint_angles
+
+            self.leg_state[leg] = 1
+            
+            for pub, angle in zip(self.controllers.leg_publishers[leg],joint_angles):
+                try:
+                    pub.publish(Float64(angle))
+                except rospy.ROSException as e:
+                    rospy.logerr(f"Failed to publish command: {e}")
+
+            self.leg_state[leg] = 0
+
+        else:
+            rospy.logerr("Cannot publish joint commands because leg is already in swing phase.")
     
     def sit(self):
         rospy.loginfo("Gradually moving to sit in all-elbow configuration...")
@@ -228,41 +247,41 @@ class Quadruped:
 
         return x, y, z
     
-    def move_single_leg_ellipse(self, leg, x_pre, y_pre, z_pre, L, H, W, t_range):
+    def move_single_leg_ellipse(self, leg, x_pre=0, y_pre=-0.45, z_pre=0.105, L=-0.05, H=0.08, W=0, t_range=np.linspace(0, np.pi, 100)):
         rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            x_e, y_e, z_e = self.elliptical_trajectory(x_pre, y_pre, z_pre, L, H, W, self.trapezoidal_profile, t_range)
-            rospy.loginfo("Calculated elliptical traj")
+        # while not rospy.is_shutdown():
+        x_e, y_e, z_e = self.elliptical_trajectory(x_pre, y_pre, z_pre, L, H, W, self.trapezoidal_profile, t_range)
+        rospy.loginfo("Calculated elliptical traj")
 
-            for i in range(len(x_e)):
-                curr_x_e = x_e[i]
-                curr_y_e = y_e[i]
-                curr_z_e = z_e[i]
+        for i in range(len(x_e)):
+            curr_x_e = x_e[i]
+            curr_y_e = y_e[i]
+            curr_z_e = z_e[i]
 
-                rospy.loginfo("Current trajectory values: x_e={}, y_e={}, z_e={}".format(curr_x_e, curr_y_e, curr_z_e))
+            rospy.loginfo("Current trajectory values: x_e={}, y_e={}, z_e={}".format(curr_x_e, curr_y_e, curr_z_e))
 
-                joint_angles = self.compute_inv_kinematics([curr_x_e, curr_y_e, curr_z_e])
+            joint_angles = self.compute_inv_kinematics([curr_x_e, curr_y_e, curr_z_e])
 
-                rospy.loginfo("Publishing joint commands: {}".format(joint_angles))
-                self.publish_leg_commands(leg=leg, joint_angles=joint_angles)
-                    
-                rate.sleep()
+            rospy.loginfo("Publishing joint commands: {}".format(joint_angles))
+            self.publish_leg_commands(leg=leg, joint_angles=joint_angles)
+                
+            rate.sleep()
 
-            x_t_out, y_t, z_t = self.translation(L*2, x_pre, y_pre, y_pre, z_pre, z_pre, t_range) # -0.1, 0.0
+        x_t_out, y_t, z_t = self.translation(L*2, x_pre, y_pre, y_pre, z_pre, z_pre, t_range) # -0.1, 0.0
 
-            for i in range(len(x_e)):
-                curr_x_t_out = x_t_out[i]
-                curr_y_t = y_t[i]
-                curr_z_t = z_t[i]
+        for i in range(len(x_e)):
+            curr_x_t_out = x_t_out[i]
+            curr_y_t = y_t[i]
+            curr_z_t = z_t[i]
 
-                rospy.loginfo("Current trajectory values: x_t_out={}, x_e_out={}, y_t={}, z_t={}".format(curr_x_t_out, curr_x_t_out, curr_y_t, curr_z_t))
+            rospy.loginfo("Current trajectory values: x_t_out={}, x_e_out={}, y_t={}, z_t={}".format(curr_x_t_out, curr_x_t_out, curr_y_t, curr_z_t))
 
-                joint_angles = self.compute_inv_kinematics([curr_x_t_out, curr_y_t, curr_z_t])
+            joint_angles = self.compute_inv_kinematics([curr_x_t_out, curr_y_t, curr_z_t])
 
-                rospy.loginfo("Publishing joint commands: {}".format(joint_angles))
-                self.publish_leg_commands(leg=leg, joint_angles=joint_angles)
-                    
-                rate.sleep()
+            rospy.loginfo("Publishing joint commands: {}".format(joint_angles))
+            self.publish_leg_commands(leg=leg, joint_angles=joint_angles)
+                
+            rate.sleep()
     
     def move_leg_circular(self, leg='lf', inital_position=[0, -0.29, 0.105], radius=0.1, n_points=20):
 
@@ -273,6 +292,13 @@ class Quadruped:
             self.publish_leg_commands(leg=leg, joint_angles=angles)
             time.sleep(1)
 
+    def basic_walk(self):
+
+        while not rospy.is_shutdown():
+            self.move_single_leg_ellipse(leg='rh')
+            self.move_single_leg_ellipse(leg='rf')
+            self.move_single_leg_ellipse(leg='lh')
+            self.move_single_leg_ellipse(leg='lf')
     
 
 if __name__ == "__main__":
