@@ -115,7 +115,7 @@ class Quadruped:
         phi = acos(abs(x) / sqrt(x**2 + y_prime**2))
         psi = acos((self.link_lengths[1]**2 + x**2 + y_prime**2 - self.link_lengths[2]**2) / (2*self.link_lengths[1]*sqrt(x**2 + y_prime**2)))
         
-        if not self.FORWARD_BEND:
+        if self.FORWARD_BEND:
             if x>0: q2 = (pi/2 - psi - phi) 
             else: q2 = (-pi/2 - psi + phi)
             q3 = pi - acos((self.link_lengths[1]**2 + self.link_lengths[2]**2 - x**2 - y_prime**2) / (2*self.link_lengths[1]*self.link_lengths[2]))
