@@ -56,6 +56,8 @@ t = np.arange(0, T_total, dt)
 # Trajectory generation
 traj = Trajectory(T=T_total)
 x_elliptical, y_elliptical = traj.elliptical_trajectory(t)
+x_elliptical = x_elliptical[::-1]
+y_elliptical = y_elliptical[::-1]
 
 # Reverse straight-line return
 x_straight = np.linspace(x_elliptical[-1], x_elliptical[0], len(x_elliptical))
@@ -78,7 +80,7 @@ for i in range(len(x_total)):
 
 # === ANIMATION ===
 fig, ax = plt.subplots()
-ax.set_xlim(-0.2, 0.6)
+ax.set_xlim(-0.5, 0.6)
 ax.set_ylim(-0.6, 0.2)
 ax.set_aspect('equal')
 ax.grid(True)
