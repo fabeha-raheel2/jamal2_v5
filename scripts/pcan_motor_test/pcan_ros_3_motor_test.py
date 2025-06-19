@@ -8,10 +8,12 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 MOTOR_IDS = [1, 2, 3]
 
 # Joint Position Values from C controller
+global JOINT_POSITIONS
 JOINT_POSITIONS = []
 
 # ROS Subscriber callback
 def position_callback(msg):
+    global JOINT_POSITIONS
     JOINT_POSITIONS = msg.points[0].positions
 
 # Initialize PCAN
@@ -24,7 +26,7 @@ pcan.SetValue(channel, PCAN_RECEIVE_EVENT, 0)
 # Motor mode commands
 MotorModeOn = [0xFF]*7 + [0xFC]
 MotorModeOff = [0xFF]*7 + [0xFD]
-
+SetOrigin = [0xFF]*7 + [0xFE]
 
 # Value limits
 P_MIN, P_MAX = -12.5, 12.5
@@ -106,6 +108,16 @@ if __name__ == "__main__":
 
     rospy.init_node("Motor_Control_Node")
     joint_position_subscriber = rospy.Subscriber('/joint_group_position_controller/command', JointTrajectory, position_callback)
+    time.sleep(0.2)
+
+    print("Setting Origin...")
+    while True:
+        send_can_msg(SetOrigin)
+        time.sleep(0.1)
+        result, _, _ = pcan.Read(channel)
+        if result != PCAN_ERROR_QRCVEMPTY:
+            break
+    print("origin Set.")
 
     # Enable motor mode
     print("Enabling motor mode...")
