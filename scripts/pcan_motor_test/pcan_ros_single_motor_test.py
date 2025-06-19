@@ -6,11 +6,15 @@ import rospy
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 # Joint Position Values from C controller
+global JOINT_POSITIONS
 JOINT_POSITIONS = []
 
 # ROS Subscriber callback
 def position_callback(msg):
+    global JOINT_POSITIONS
     JOINT_POSITIONS = msg.points[0].positions
+    # print(round(JOINT_POSITIONS[1],3))
+
 
 # Initialize PCAN
 pcan = PCANBasic()
@@ -22,7 +26,7 @@ pcan.SetValue(channel, PCAN_RECEIVE_EVENT, 0)
 # Motor mode commands
 MotorModeOn = [0xFF]*7 + [0xFC]
 MotorModeOff = [0xFF]*7 + [0xFD]
-
+SetOrigin = [0xFF]*7 + [0xFE]
 
 # Value limits
 P_MIN, P_MAX = -12.5, 12.5
@@ -103,8 +107,17 @@ if __name__ == "__main__":
 
     rospy.init_node("Motor_Control_Node")
     joint_position_subscriber = rospy.Subscriber('/joint_group_position_controller/command', JointTrajectory, position_callback)
+    time.sleep(1)
+    print("Setting Origin...")
+    while True:
+        send_can_msg(SetOrigin)
+        time.sleep(0.1)
+        result, _, _ = pcan.Read(channel)
+        if result != PCAN_ERROR_QRCVEMPTY:
+            break
+    print("origin Set.")
 
-    # Enable motor mode
+    # Enable motor mode0
     print("Enabling motor mode...")
     while True:
         send_can_msg(MotorModeOn)
@@ -118,7 +131,7 @@ if __name__ == "__main__":
     try:
         while True:
             try:
-                p_in = JOINT_POSITIONS[0]
+                p_in = round(JOINT_POSITIONS[1],3)
             except ValueError:
                 print("Invalid input. Try again.")
                 continue

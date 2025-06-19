@@ -8,6 +8,7 @@ JOINT_POSITIONS = []
 def position_callback(msg):
 
     JOINT_POSITIONS = msg.points[0].positions
+    print(JOINT_POSITIONS)
 
 if __name__ == "__main__":
     rospy.init_node("Position_Subscriber")
