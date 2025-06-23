@@ -1,4 +1,4 @@
-from scripts.pcan_motor_test.PCANBasic import *
+from PCANBasic import *
 from ctypes import c_ubyte
 import time
 

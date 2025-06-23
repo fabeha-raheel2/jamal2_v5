@@ -1,6 +1,7 @@
 from PCANBasic import *
 from ctypes import c_ubyte
 import time
+import math
 
 import rospy
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -9,6 +10,9 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 global JOINT_POSITIONS
 JOINT_POSITIONS = []
 
+Min_value = [0, -0.349066]
+Max_value = [0, 1.57]
+offset = 1.57 ## 90 degree offset for upper leg
 # ROS Subscriber callback
 def position_callback(msg):
     global JOINT_POSITIONS
@@ -38,6 +42,12 @@ T_MIN, T_MAX = -144.0, 144.0
 # Default control values
 v_in, kp_in, kd_in, t_in = 0.0, 30.0, 3.0, 1.0
 
+def constrain(val, min_val, max_val):
+
+    if val < min_val: return min_val
+    if val > max_val: return max_val
+    return val
+
 def float_to_uint(x, x_min, x_max, bits):
     span = x_max - x_min
     offset = x_min
@@ -58,7 +68,7 @@ def uint_to_float(x_int, x_min, x_max, bits):
 
 def send_can_msg(data):
     msg = TPCANMsg()
-    msg.ID = 0x0D
+    msg.ID = 0x02
     msg.LEN = 8
     msg.MSGTYPE = PCAN_MESSAGE_STANDARD
     msg.DATA = (c_ubyte * 8)(*data)
@@ -132,6 +142,11 @@ if __name__ == "__main__":
         while True:
             try:
                 p_in = round(JOINT_POSITIONS[1],3)
+                # p_in = -0.4
+                p_in = constrain(p_in, Min_value[1], Max_value[1])
+                # print(p_in)
+                p_in = -(p_in-offset)
+                # print(offset)
             except ValueError:
                 print("Invalid input. Try again.")
                 continue

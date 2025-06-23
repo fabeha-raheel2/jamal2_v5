@@ -5,16 +5,20 @@ import time
 import rospy
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
+MOTOR_IDS = [0x01, 0x02, 0x03]
+
 # Joint Position Values from C controller
 global JOINT_POSITIONS
 JOINT_POSITIONS = []
+
+Min_value = [0, -0.349066, -2.67035]
+Max_value = [0, 1.57, -0.872665]
+Motor_offset = [0, 1.57, -2.67035] ## 90 degree offset for upper leg
 
 # ROS Subscriber callback
 def position_callback(msg):
     global JOINT_POSITIONS
     JOINT_POSITIONS = msg.points[0].positions
-    # print(round(JOINT_POSITIONS[1],3))
-
 
 # Initialize PCAN
 pcan = PCANBasic()
@@ -38,6 +42,12 @@ T_MIN, T_MAX = -144.0, 144.0
 # Default control values
 v_in, kp_in, kd_in, t_in = 0.0, 30.0, 3.0, 1.0
 
+def constrain(val, min_val, max_val):
+
+    if val < min_val: return min_val
+    if val > max_val: return max_val
+    return val
+
 def float_to_uint(x, x_min, x_max, bits):
     span = x_max - x_min
     offset = x_min
@@ -56,9 +66,10 @@ def uint_to_float(x_int, x_min, x_max, bits):
         return x_int * span / 65535.0 + offset
     return 0.0
 
-def send_can_msg(data):
+def send_can_msg(data, id):
     msg = TPCANMsg()
-    msg.ID = 0x0D
+    # msg.ID = 0x01 
+    msg.ID = id
     msg.LEN = 8
     msg.MSGTYPE = PCAN_MESSAGE_STANDARD
     msg.DATA = (c_ubyte * 8)(*data)
@@ -107,37 +118,58 @@ if __name__ == "__main__":
 
     rospy.init_node("Motor_Control_Node")
     joint_position_subscriber = rospy.Subscriber('/joint_group_position_controller/command', JointTrajectory, position_callback)
-    time.sleep(1)
-    print("Setting Origin...")
-    while True:
-        send_can_msg(SetOrigin)
-        time.sleep(0.1)
-        result, _, _ = pcan.Read(channel)
-        if result != PCAN_ERROR_QRCVEMPTY:
-            break
-    print("origin Set.")
+    time.sleep(0.2)
 
-    # Enable motor mode0
+    print("Setting Origin...")
+    for motor_id in MOTOR_IDS:
+        if motor_id == 0x01:
+            continue
+        
+        while True:
+            send_can_msg(SetOrigin, id=motor_id)
+            time.sleep(0.1)
+            result, _, _ = pcan.Read(channel)
+            if result != PCAN_ERROR_QRCVEMPTY:
+                break
+    print("Origin set.")
+
     print("Enabling motor mode...")
-    while True:
-        send_can_msg(MotorModeOn)
-        time.sleep(0.1)
-        result, _, _ = pcan.Read(channel)
-        if result != PCAN_ERROR_QRCVEMPTY:
-            break
+    for motor_id in MOTOR_IDS:
+        if motor_id == 0x01:
+            continue
+        while True:
+            send_can_msg(MotorModeOn, id=motor_id)
+            time.sleep(0.1)
+            result, _, _ = pcan.Read(channel)
+            if result != PCAN_ERROR_QRCVEMPTY:
+                break
     print("Motor mode enabled.")
 
     # User input loop
     try:
         while True:
             try:
-                p_in = round(JOINT_POSITIONS[1],3)
+                # p_in_1 = round(JOINT_POSITIONS[0],3)
+                p_in_2 = round(JOINT_POSITIONS[1],3)
+                p_in_2 = constrain(p_in_2, Min_value[1], Max_value[1])
+                p_in_2 = -(p_in_2-Motor_offset[1])
+
+
+                p_in_3 = round(JOINT_POSITIONS[2],3)
+                p_in_3 = constrain(p_in_3, Min_value[2], Max_value[2])
+                p_in_3 = 0.88*(p_in_3-Motor_offset[2])
             except ValueError:
                 print("Invalid input. Try again.")
                 continue
 
-            can_data = pack_cmd(p_in, v_in, kp_in, kd_in, t_in)
-            send_can_msg(can_data)
+            # can_data = pack_cmd(p_in_1, v_in, kp_in, kd_in, t_in)
+            # send_can_msg(can_data, id=MOTOR_IDS[0])
+
+            can_data = pack_cmd(p_in_2, v_in, kp_in, kd_in, t_in)
+            send_can_msg(can_data, id=MOTOR_IDS[1])
+
+            can_data = pack_cmd(p_in_3, v_in, kp_in, kd_in, t_in)
+            send_can_msg(can_data, id=MOTOR_IDS[2])
             time.sleep(0.01)
             receive_can_msg()
 
