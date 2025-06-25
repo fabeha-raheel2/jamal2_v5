@@ -43,7 +43,7 @@ def uint_to_float(x_int, x_min, x_max, bits):
 
 def send_can_msg(data):
     msg = TPCANMsg()
-    msg.ID = 0x01
+    msg.ID = 0x0A
     msg.LEN = 8
     msg.MSGTYPE = PCAN_MESSAGE_STANDARD
     msg.DATA = (c_ubyte * 8)(*data)
