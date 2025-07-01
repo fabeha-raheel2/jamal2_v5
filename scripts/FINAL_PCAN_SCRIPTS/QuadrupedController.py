@@ -46,7 +46,7 @@ class QuadrupedController:
     def position_callback(self, msg):
         self.joint_positions = msg.points[0].positions
 
-    def control_loop(self):
+    def run_control_loop(self):
         try:
             while True:
                 for motor, position in zip(self.motors.items(),self.joint_positions):
