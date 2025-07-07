@@ -57,7 +57,7 @@ class PcanController:
         return self.receive_can_msg()
     
     def clean(self):
-        self.disable_motor_mode()
+        # self.disable_motor_mode()
         self.pcan.Uninitialize(self.channel)  
 
     def send_can_msg(self, data, id):

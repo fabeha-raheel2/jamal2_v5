@@ -51,18 +51,28 @@ class QuadrupedController:
         self.joint_positions = msg.points[0].positions
 
     def run_control_loop(self):
-        try:
-            while True:
-                for motor, position in zip(self.motors.values(),self.joint_positions):
-                    print(f"Motor {motor}, position {position}")
-                    time.sleep(2)
+        
+        rate = rospy.Rate(50)
+        
+        while not rospy.is_shutdown():
+
+            for motor, position in zip(self.motors.values(),self.joint_positions):
+                
+                try:
                     feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
                     print(feedback)
-        
-        except KeyboardInterrupt:
-            print("\nDisabling motor and exiting...")
-            self.pcan_bus.clean()
-            sys.exit()
+
+                except KeyboardInterrupt:
+                    print("\nDisabling motor and exiting...")
+                    
+                    for id in MOTOR_IDS.values():
+                        self.pcan_bus.disable_motor_mode(motor_id=id)
+                    
+                    self.pcan_bus.clean()
+                    break
+                    
+            rate.sleep()
+            
               
 # if __name__ == "__main__":
 #     quadruped_controller = QuadrupedController()
