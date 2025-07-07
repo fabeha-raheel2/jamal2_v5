@@ -56,6 +56,9 @@ class QuadrupedController:
         
         while not rospy.is_shutdown():
 
+            if not self.joint_positions:
+                continue
+
             for motor, position in zip(self.motors.values(),self.joint_positions):
                 
                 try:
