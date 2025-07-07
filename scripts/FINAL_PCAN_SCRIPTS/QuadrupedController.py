@@ -1,5 +1,6 @@
 import rospy
 import math
+import sys
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 from Quadruped_config import *
@@ -19,13 +20,16 @@ class Motor:
     
     def constrain(self, val):
         return max(self.min_value, min(val, self.max_value))
+    
+    def __str__(self):
+        return f"Motor {self.name} with ID {self.id}"
 
 class QuadrupedController:
     def __init__(self):
         self.pcan_bus = PcanController()
 
         self.joint_positions = []
-        self.motors = MOTOR_IDS
+        self.motors = MOTOR_IDS.copy()
 
         for motor in MOTOR_IDS.keys():
             self.motors[motor] = Motor(name=motor,
@@ -39,7 +43,7 @@ class QuadrupedController:
         self.joint_position_subscriber = rospy.Subscriber('/joint_group_position_controller/command', JointTrajectory, self.position_callback)
         self.pcan_bus.initialize()
 
-        for id in MOTOR_IDS.items():
+        for id in MOTOR_IDS.values():
             self.pcan_bus.set_motor_origin(motor_id=id)
             self.pcan_bus.enable_motor_mode(motor_id=id)
 
@@ -49,11 +53,17 @@ class QuadrupedController:
     def run_control_loop(self):
         try:
             while True:
-                for motor, position in zip(self.motors.items(),self.joint_positions):
+                for motor, position in zip(self.motors.values(),self.joint_positions):
+                    print(f"Motor {motor}, position {position}")
+                    time.sleep(2)
                     feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
                     print(feedback)
         
         except KeyboardInterrupt:
             print("\nDisabling motor and exiting...")
             self.pcan_bus.clean()
+            sys.exit()
               
+# if __name__ == "__main__":
+#     quadruped_controller = QuadrupedController()
+#     quadruped_controller.run_control_loop()

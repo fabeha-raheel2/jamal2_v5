@@ -45,7 +45,7 @@ class PcanController:
 
     def disable_motor_mode(self, motor_id):
         while True:
-            self.send_can_msg(self.MotorModeOff)
+            self.send_can_msg(self.MotorModeOff, id=motor_id)
             time.sleep(0.1)
             result, _, _ = self.pcan.Read(self.channel)
             if result != PCAN_ERROR_QRCVEMPTY:
