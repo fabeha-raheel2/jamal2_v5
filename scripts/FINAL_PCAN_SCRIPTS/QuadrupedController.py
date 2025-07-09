@@ -29,6 +29,8 @@ class QuadrupedController:
         self.pcan_bus = PcanController()
 
         self.joint_positions = []
+        self.joint_names = JOINT_NAMES
+
         self.motors = MOTOR_IDS.copy()
 
         for motor in MOTOR_IDS.keys():
@@ -50,9 +52,34 @@ class QuadrupedController:
     def position_callback(self, msg):
         self.joint_positions = msg.points[0].positions
 
+    def run_single_leg_loop(self, leg):
+
+        while not rospy.is_shutdown():
+
+            if not self.joint_positions:
+                continue
+
+            leg_joints = [name for name in JOINT_NAMES if name.startswith(leg)]
+            leg_joint_positions = [self.joint_positions[self.joint_names.index(joint)] for joint in leg_joints]
+
+            for motor, position in zip(self.motors.values(),leg_joint_positions):
+                
+                try:
+                    feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
+                    print(feedback)
+
+                except KeyboardInterrupt:
+                    print("\nDisabling motor and exiting...")
+                    
+                    for id in MOTOR_IDS.values():
+                        self.pcan_bus.disable_motor_mode(motor_id=id)
+                    
+                    self.pcan_bus.clean()
+                    break
+
     def run_control_loop(self):
         
-        rate = rospy.Rate(50)
+        # rate = rospy.Rate(50)
         
         while not rospy.is_shutdown():
 
@@ -74,9 +101,9 @@ class QuadrupedController:
                     self.pcan_bus.clean()
                     break
                     
-            rate.sleep()
+            # rate.sleep()
             
               
-# if __name__ == "__main__":
-#     quadruped_controller = QuadrupedController()
-#     quadruped_controller.run_control_loop()
+if __name__ == "__main__":
+    quadruped_controller = QuadrupedController()
+    # quadruped_controller.run_control_loop()
