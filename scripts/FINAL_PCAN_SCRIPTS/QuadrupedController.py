@@ -2,6 +2,7 @@ import rospy
 import math
 import sys
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from sensor_msgs.msg import JointState
 
 from Quadruped_config import *
 from PcanController import *
@@ -25,8 +26,10 @@ class Motor:
         return f"Motor {self.name} with ID {self.id}"
 
 class QuadrupedController:
-    def __init__(self):
+    def __init__(self, publish_joint_state=False):
         self.pcan_bus = PcanController()
+
+        self.publish_joint_state = publish_joint_state
 
         self.joint_positions = []
         self.joint_names = JOINT_NAMES
@@ -43,6 +46,10 @@ class QuadrupedController:
 
         rospy.init_node("Motor_Control_Node")
         self.joint_position_subscriber = rospy.Subscriber('/joint_group_position_controller/command', JointTrajectory, self.position_callback)
+        
+        if self.publish_joint_state:
+            self.joint_state_publisher = rospy.Publisher('/joint_states', JointState)
+
         self.pcan_bus.initialize()
 
         for id in MOTOR_IDS.values():
@@ -86,11 +93,13 @@ class QuadrupedController:
             if not self.joint_positions:
                 continue
 
+            feedback_positions = []
+
             for motor, position in zip(self.motors.values(),self.joint_positions):
                 
                 try:
-                    feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
-                    print(feedback)
+                    position_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
+                    feedback_positions.append(position_feedback)
 
                 except KeyboardInterrupt:
                     print("\nDisabling motor and exiting...")
@@ -100,7 +109,16 @@ class QuadrupedController:
                     
                     self.pcan_bus.clean()
                     break
-                    
+
+            if self.publish_joint_state:
+                msg = JointState()
+
+                msg.header.stamp = rospy.Time.now()
+                msg.name = JOINT_NAMES
+                msg.position = feedback_positions
+
+                self.joint_state_publisher.publish(msg)
+                        
             # rate.sleep()
             
               

@@ -86,7 +86,7 @@ class PcanController:
             output = "No response from actuator."
             print(output)
 
-        return output
+        return p_out
 
     def pack_cmd(self, p_in, v_in, kp_in, kd_in, t_in):
         p_des = max(min(p_in, P_MAX), P_MIN)
