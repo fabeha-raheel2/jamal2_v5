@@ -1,8 +1,6 @@
 from QuadrupedController import QuadrupedController
 
-# Remember to make appropriate changes in config file. 
-
-# Comment all non-necessary joints in MOTOR_IDS and MOTOR_MIN_MAX_OFFSET_MULT
+# No need to comment anything in the config file anymore.
 
 leg = "lf"   # choose from "lf" (Left Front), "rf" (Right Front), "lh" (Left Hind), "rh" (Right Hind)
 
