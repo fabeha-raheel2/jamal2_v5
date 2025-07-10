@@ -22,6 +22,9 @@ class Motor:
     def constrain(self, val):
         return max(self.min_value, min(val, self.max_value))
     
+    def readjust_position(self, pos):
+        return (pos / self.multiplier) + self.offset
+    
     def __str__(self):
         return f"Motor {self.name} with ID {self.id}"
 
@@ -99,7 +102,7 @@ class QuadrupedController:
                 
                 try:
                     position_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
-                    feedback_positions.append(position_feedback)
+                    feedback_positions.append(motor.readjust_position(position_feedback))
 
                 except KeyboardInterrupt:
                     print("\nDisabling motor and exiting...")
