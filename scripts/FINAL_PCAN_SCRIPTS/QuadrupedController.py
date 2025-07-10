@@ -27,6 +27,9 @@ class Motor:
     
     def __str__(self):
         return f"Motor {self.name} with ID {self.id}"
+    
+    def __repr__(self):
+        return f"Motor {self.name} with ID {self.id}"
 
 class QuadrupedController:
     def __init__(self, publish_joint_state=False):
@@ -71,8 +74,9 @@ class QuadrupedController:
 
             leg_joints = [name for name in JOINT_NAMES if name.startswith(leg)]
             leg_joint_positions = [self.joint_positions[self.joint_names.index(joint)] for joint in leg_joints]
+            leg_motors = [motor for motor in self.motors.values() if motor.name.startswith(leg)]
 
-            for motor, position in zip(self.motors.values(),leg_joint_positions):
+            for motor, position in zip(leg_motors,leg_joint_positions):
                 
                 try:
                     feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))

@@ -20,6 +20,9 @@ class Motor:
     def __str__(self):
         return f"Motor {self.name} with ID {self.id}"
     
+    def __repr__(self):
+        return f"Motor {self.name} with ID {self.id}"
+    
 motors = MOTOR_IDS.copy()
 
 for motor in MOTOR_IDS.keys():
@@ -42,8 +45,10 @@ leg_joints = [name for name in JOINT_NAMES if name.startswith(leg)]
 
 leg_joint_positions = [joint_positions[joint_names.index(joint)] for joint in leg_joints]
 
-print("Joint positions: ", joint_positions)
-print("leg positions: ", leg_joint_positions)
+leg_motors = [motor for motor in motors.values() if motor.name.startswith(leg)]
+# print("Joint positions: ", joint_positions)
+# print("leg positions: ", leg_joint_positions)
+print(leg_motors)
 
-for motor, position in zip(motors.values(),leg_joint_positions):
-    print(f"Motor: {motor}, Position: {position}")
+# for motor, position in zip(motors.values(),leg_joint_positions):
+#     print(f"Motor: {motor}, Position: {position}")
