@@ -48,7 +48,11 @@ leg_joint_positions = [joint_positions[joint_names.index(joint)] for joint in le
 leg_motors = [motor for motor in motors.values() if motor.name.startswith(leg)]
 # print("Joint positions: ", joint_positions)
 # print("leg positions: ", leg_joint_positions)
-print(leg_motors)
+# print(leg_motors)
 
 # for motor, position in zip(motors.values(),leg_joint_positions):
 #     print(f"Motor: {motor}, Position: {position}")
+
+list = [0] * 12
+
+print(list)

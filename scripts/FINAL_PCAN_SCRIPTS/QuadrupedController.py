@@ -58,9 +58,20 @@ class QuadrupedController:
 
         self.pcan_bus.initialize()
 
+        self.feedback_positions = [0] * 12
+
         for id in MOTOR_IDS.values():
             self.pcan_bus.set_motor_origin(motor_id=id)
             self.pcan_bus.enable_motor_mode(motor_id=id)
+
+        if self.publish_joint_state:
+            msg = JointState()
+
+            msg.header.stamp = rospy.Time.now()
+            msg.name = JOINT_NAMES
+            msg.position = self.feedback_positions
+
+            self.joint_state_publisher.publish(msg)
 
     def position_callback(self, msg):
         self.joint_positions = msg.points[0].positions
@@ -100,13 +111,13 @@ class QuadrupedController:
             if not self.joint_positions:
                 continue
 
-            feedback_positions = []
+            self.feedback_positions = []
 
             for motor, position in zip(self.motors.values(),self.joint_positions):
                 
                 try:
                     position_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
-                    feedback_positions.append(motor.readjust_position(position_feedback))
+                    self.feedback_positions.append(motor.readjust_position(position_feedback))
 
                 except KeyboardInterrupt:
                     print("\nDisabling motor and exiting...")
@@ -122,7 +133,7 @@ class QuadrupedController:
 
                 msg.header.stamp = rospy.Time.now()
                 msg.name = JOINT_NAMES
-                msg.position = feedback_positions
+                msg.position = self.feedback_positions
 
                 self.joint_state_publisher.publish(msg)
                         
