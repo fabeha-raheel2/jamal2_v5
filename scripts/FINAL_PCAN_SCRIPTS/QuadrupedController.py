@@ -104,8 +104,6 @@ class QuadrupedController:
 
     def run_control_loop(self):
         
-        # rate = rospy.Rate(50)
-        
         while not rospy.is_shutdown():
 
             if not self.joint_positions:
@@ -136,8 +134,6 @@ class QuadrupedController:
                 msg.position = self.feedback_positions
 
                 self.joint_state_publisher.publish(msg)
-                        
-            # rate.sleep()
             
               
 if __name__ == "__main__":
