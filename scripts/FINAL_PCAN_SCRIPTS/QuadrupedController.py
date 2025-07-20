@@ -54,15 +54,28 @@ class QuadrupedController:
         self.joint_position_subscriber = rospy.Subscriber('/joint_group_position_controller/command', JointTrajectory, self.position_callback)
         
         if self.publish_joint_state:
-            self.joint_state_publisher = rospy.Publisher('/joint_states', JointState)
+            self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
 
         self.pcan_bus.initialize()
 
-        self.feedback_positions = [0] * 12
+        self.feedback_positions = []
 
-        for id in MOTOR_IDS.values():
-            self.pcan_bus.set_motor_origin(motor_id=id)
-            self.pcan_bus.enable_motor_mode(motor_id=id)
+        for motor in self.motors.values():
+            self.pcan_bus.set_motor_origin(motor_id=motor.id)
+            self.pcan_bus.enable_motor_mode(motor_id=motor.id)
+            
+            if self.publish_joint_state:
+                self.feedback_positions.append(motor.readjust_position(pos=0))
+
+        if self.publish_joint_state:
+                msg = JointState()
+
+                msg.header.stamp = rospy.Time.now()
+                msg.name = JOINT_NAMES
+                msg.position = self.feedback_positions
+
+                self.joint_state_publisher.publish(msg)
+
 
         if self.publish_joint_state:
             msg = JointState()
