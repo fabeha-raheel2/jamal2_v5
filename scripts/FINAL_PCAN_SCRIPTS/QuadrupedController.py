@@ -32,7 +32,9 @@ class Motor:
         return f"Motor {self.name} with ID {self.id}"
 
 class QuadrupedController:
-    def __init__(self, publish_joint_state=False):
+    def __init__(self, publish_joint_state=False, debug=False):
+        self._debug = debug
+
         self.pcan_bus = PcanController()
 
         self.publish_joint_state = publish_joint_state
@@ -65,7 +67,13 @@ class QuadrupedController:
             self.pcan_bus.enable_motor_mode(motor_id=motor.id)
             
             if self.publish_joint_state:
-                self.feedback_positions.append(motor.readjust_position(pos=0))
+                if self._debug:
+                    user_input = input("Set Motors 0 Position?")
+
+                    if user_input == "y" or user_input == "Y":
+                        self.feedback_positions.append(motor.readjust_position(pos=0))
+                else:
+                    self.feedback_positions.append(motor.readjust_position(pos=0))
 
         if self.publish_joint_state:
                 msg = JointState()
