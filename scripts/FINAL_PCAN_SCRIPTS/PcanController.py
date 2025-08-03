@@ -54,6 +54,11 @@ class PcanController:
     def send_position(self, motor_id, pos):
         data = self.pack_cmd(pos, self.v_in, self.kp_in, self.kd_in, self.t_in)
         self.send_can_msg(data, id=motor_id)
+        return self.receive_can_msg()['position']
+    
+    def send_motor_data(self, motor_id, pos, v_in, kp_in, kd_in, t_in):
+        data = self.pack_cmd(pos, v_in, kp_in, kd_in, t_in)
+        self.send_can_msg(data, id=motor_id)
         return self.receive_can_msg()
     
     def clean(self):
@@ -86,7 +91,7 @@ class PcanController:
             output = "No response from actuator."
             print(output)
 
-        return p_out
+        return {'position':p_out, 'velocity':v_out, 'torque': t_out}
 
     def pack_cmd(self, p_in, v_in, kp_in, kd_in, t_in):
         p_des = max(min(p_in, P_MAX), P_MIN)
