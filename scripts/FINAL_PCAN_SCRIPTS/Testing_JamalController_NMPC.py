@@ -3,6 +3,7 @@ import math
 import sys
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Float64MultiArray
 
 from Quadruped_config import *
 from PcanController import *
@@ -39,7 +40,7 @@ class JamalController:
 
         self.publish_joint_state = publish_feedback
 
-        self.joint_states = {"positions":[], "velocities":[], "torques":[]} # feedback that is received from motors
+        self.joint_states = {"positions":[1] * 12, "velocities":[2] * 12, "torques":[42] * 12} # feedback that is received from motors
         self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[], "kd":[]} # the commands that have to be sent to the motors
         
         self.joint_names = JOINT_NAMES
@@ -58,48 +59,50 @@ class JamalController:
         # Jamal Motor Control Node
 
         rospy.init_node("Motor_Control_Node")
-        self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', JointTrajectory, self.controller_callback)
+        self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', Float64MultiArray, self.controller_callback)
         
         if self.publish_joint_state:
             self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
 
-        self.pcan_bus.initialize()
+        # self.pcan_bus.initialize()
 
-        for motor in self.motors.values():
-            self.pcan_bus.set_motor_origin(motor_id=motor.id)
-            self.pcan_bus.enable_motor_mode(motor_id=motor.id)
+        # for motor in self.motors.values():
+        #     self.pcan_bus.set_motor_origin(motor_id=motor.id)
+        #     self.pcan_bus.enable_motor_mode(motor_id=motor.id)
             
-            # TO-DO: CHEK IF THIS INITIALIZATION SCHEME IS REQUIRED OR NOT
-            self.feedback_positions = []
-            if self.publish_joint_state:
-                if self._debug:
-                    user_input = input("Set Motors 0 Position?")
+        #     # TO-DO: CHEK IF THIS INITIALIZATION SCHEME IS REQUIRED OR NOT
+        #     self.feedback_positions = []
+        #     if self.publish_joint_state:
+        #         if self._debug:
+        #             user_input = input("Set Motors 0 Position?")
 
-                    if user_input == "y" or user_input == "Y":
-                        self.feedback_positions.append(motor.readjust_position(pos=0))
-                else:
-                    self.feedback_positions.append(motor.readjust_position(pos=0))
+        #             if user_input == "y" or user_input == "Y":
+        #                 self.feedback_positions.append(motor.readjust_position(pos=0))
+        #         else:
+        #             self.feedback_positions.append(motor.readjust_position(pos=0))
 
         if self.publish_joint_state:
-                msg = JointState()
+                self.publish_joint_feedback()
+                # msg = JointState()
 
-                msg.header.stamp = rospy.Time.now()
-                msg.name = JOINT_NAMES
-                msg.position = self.feedback_positions
+                # msg.header.stamp = rospy.Time.now()
+                # msg.name = JOINT_NAMES
+                # msg.position = self.feedback_positions
 
-                self.joint_state_publisher.publish(msg)
+                # self.joint_state_publisher.publish(msg)
 
     def controller_callback(self, msg):
         # Get the commands from the NMPC + WBC controller
-        self.joint_commands["positions"] = msg.points[0].positions
-        self.joint_commands["velocities"] = msg.points[0].velocities
-        self.joint_commands["torques"] = msg.points[0].effort
-        # TO-DO - HOW TO PUBLISH KP AND KD COMMANDS - We will need a separate topic for this I think
-        self.joint_commands["kp"] = 0
-        self.joint_commands["kd"] = 0
+        self.joint_commands["positions"] = msg.data[0:11]
+        self.joint_commands["velocities"] = msg.data[12:23]
+        self.joint_commands["kp"] = msg.data[24:35]
+        self.joint_commands["kd"] = msg.data[36:47]
+        self.joint_commands["torques"] = msg.data[48:59]
+
+        print("Joint Commands: ", self.joint_commands)
 
         # Send these commands to each of the motors
-        self.send_motor_commands()
+        # self.send_motor_commands()
 
         # Publish the feedback of all 12 motors
         if self.publish_joint_state:
@@ -138,10 +141,11 @@ class JamalController:
         msg.position = self.joint_states['positions']
         msg.velocity = self.joint_states['velocities']
         msg.effort = self.joint_states['torques']
-
+        print(self.joint_states)
         self.joint_state_publisher.publish(msg)
 
             
               
 if __name__ == "__main__":
     quadruped_controller = JamalController()
+    rospy.spin()
