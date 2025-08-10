@@ -67,8 +67,8 @@ class JamalController:
         self.pcan_bus.initialize()
 
         for motor in self.motors.values():
-            self.pcan_bus.set_motor_origin(motor_id=motor.id)
-            self.pcan_bus.enable_motor_mode(motor_id=motor.id)
+            # self.pcan_bus.set_motor_origin(motor_id=motor.id)
+            # self.pcan_bus.enable_motor_mode(motor_id=motor.id)
             
         #     # TO-DO: CHEK IF THIS INITIALIZATION SCHEME IS REQUIRED OR NOT
             self.feedback_positions = []
@@ -77,6 +77,8 @@ class JamalController:
                     user_input = input("Set Motors 0 Position?")
 
                     if user_input == "y" or user_input == "Y":
+                        self.pcan_bus.set_motor_origin(motor_id=motor.id)
+                        self.pcan_bus.enable_motor_mode(motor_id=motor.id)
                         self.feedback_positions.append(motor.readjust_position(pos=0))
                 else:
                     self.feedback_positions.append(motor.readjust_position(pos=0))
