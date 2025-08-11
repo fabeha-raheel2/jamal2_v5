@@ -90,6 +90,8 @@ class JamalController:
                 self.joint_state_publisher.publish(msg)
 
     def controller_callback(self, msg):
+        self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[], "kd":[]}
+
         # Get the commands from the NMPC + WBC controller
         self.joint_commands["positions"] = msg.data[0:12]
         self.joint_commands["velocities"] = msg.data[12:24]
@@ -100,7 +102,7 @@ class JamalController:
         print("Joint Commands: ", self.joint_commands)
 
         # Send these commands to each of the motors
-        # self.send_motor_commands()
+        self.send_motor_commands()
 
         # Publish the feedback of all 12 motors
         if self.publish_joint_state:
@@ -117,6 +119,7 @@ class JamalController:
                                                             t_in=torque,
                                                             kp_in=kp,
                                                             kd_in=kd)
+                
             except KeyboardInterrupt:
                 print("\nDisabling motor and exiting...")
                 
@@ -127,6 +130,7 @@ class JamalController:
                 break
 
             # Save the feedback
+            self.joint_states = {"positions":[], "velocities":[], "torques":[]}
             self.joint_states['positions'].append(feedback['position'])
             self.joint_states['velocities'].append(feedback['velocity'])
             self.joint_states['torques'].append(feedback['torque'])
