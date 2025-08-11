@@ -109,6 +109,8 @@ class JamalController:
             self.publish_joint_feedback()
             
     def send_motor_commands(self):
+        self.joint_states = {"positions":[], "velocities":[], "torques":[]}
+        
         for motor, position, velocity, torque, kp, kd in zip(self.motors.values(), self.joint_commands["positions"], self.joint_commands["velocities"], self.joint_commands["torques"], self.joint_commands["kp"], self.joint_commands["kd"]):
 
             # Send the command    
@@ -130,7 +132,7 @@ class JamalController:
                 break
 
             # Save the feedback
-            self.joint_states = {"positions":[], "velocities":[], "torques":[]}
+            
             self.joint_states['positions'].append(feedback['position'])
             self.joint_states['velocities'].append(feedback['velocity'])
             self.joint_states['torques'].append(feedback['torque'])
