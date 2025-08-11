@@ -91,11 +91,11 @@ class JamalController:
 
     def controller_callback(self, msg):
         # Get the commands from the NMPC + WBC controller
-        self.joint_commands["positions"] = msg.data[0:11]
-        self.joint_commands["velocities"] = msg.data[12:23]
-        self.joint_commands["kp"] = msg.data[24:35]
-        self.joint_commands["kd"] = msg.data[36:47]
-        self.joint_commands["torques"] = msg.data[48:59]
+        self.joint_commands["positions"] = msg.data[0:12]
+        self.joint_commands["velocities"] = msg.data[12:24]
+        self.joint_commands["kp"] = msg.data[24:36]
+        self.joint_commands["kd"] = msg.data[36:48]
+        self.joint_commands["torques"] = msg.data[48:60]
 
         print("Joint Commands: ", self.joint_commands)
 
