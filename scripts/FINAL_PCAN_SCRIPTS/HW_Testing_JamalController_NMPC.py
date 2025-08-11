@@ -75,6 +75,7 @@ class JamalController:
                     for motor in self.motors.values():
                         self.pcan_bus.set_motor_origin(motor_id=motor.id)
                         self.pcan_bus.enable_motor_mode(motor_id=motor.id)
+                        self.pcan_bus.send_position(motor_id=motor.id, pos=0)
                         self.feedback_positions.append(motor.readjust_position(pos=0))
             # else:
             #     self.feedback_positions.append(motor.readjust_position(pos=0))
@@ -110,7 +111,7 @@ class JamalController:
             
     def send_motor_commands(self):
         self.joint_states = {"positions":[], "velocities":[], "torques":[]}
-        
+
         for motor, position, velocity, torque, kp, kd in zip(self.motors.values(), self.joint_commands["positions"], self.joint_commands["velocities"], self.joint_commands["torques"], self.joint_commands["kp"], self.joint_commands["kd"]):
 
             # Send the command    
@@ -132,7 +133,6 @@ class JamalController:
                 break
 
             # Save the feedback
-            
             self.joint_states['positions'].append(feedback['position'])
             self.joint_states['velocities'].append(feedback['velocity'])
             self.joint_states['torques'].append(feedback['torque'])
