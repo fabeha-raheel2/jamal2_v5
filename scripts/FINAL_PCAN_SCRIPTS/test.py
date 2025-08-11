@@ -33,26 +33,33 @@ for motor in MOTOR_IDS.keys():
                                 offset=math.radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][2]),
                                 multiplier=MOTOR_MIN_MAX_OFFSET_MULT[motor][3])
 
-leg = "rf"
+# leg = "rf"
 
-joint_names = JOINT_NAMES
+# joint_names = JOINT_NAMES
 
-joint_positions = [random.random() for _ in range(12)]
-# print(joint_positions)
+# joint_positions = [random.random() for _ in range(12)]
+# # print(joint_positions)
 
-leg_joints = [name for name in JOINT_NAMES if name.startswith(leg)]
-# print(leg_joints)
+# leg_joints = [name for name in JOINT_NAMES if name.startswith(leg)]
+# # print(leg_joints)
 
-leg_joint_positions = [joint_positions[joint_names.index(joint)] for joint in leg_joints]
+# leg_joint_positions = [joint_positions[joint_names.index(joint)] for joint in leg_joints]
 
-leg_motors = [motor for motor in motors.values() if motor.name.startswith(leg)]
-# print("Joint positions: ", joint_positions)
-# print("leg positions: ", leg_joint_positions)
-# print(leg_motors)
+# leg_motors = [motor for motor in motors.values() if motor.name.startswith(leg)]
+# # print("Joint positions: ", joint_positions)
+# # print("leg positions: ", leg_joint_positions)
+# # print(leg_motors)
 
-# for motor, position in zip(motors.values(),leg_joint_positions):
-#     print(f"Motor: {motor}, Position: {position}")
+# # for motor, position in zip(motors.values(),leg_joint_positions):
+# #     print(f"Motor: {motor}, Position: {position}")
 
-list = [0] * 12
+# list = [0] * 12
 
-print(list)
+# print(list)
+
+joint_states = {"positions":[], "velocities":[], "torques":[]} # feedback that is received from motors
+joint_commands = {"positions":[0] * 12, "velocities":[1] * 12, "torques":[2] * 12, "kp":[3] * 12, "kd":[4] * 12} # the commands that have to be sent to the motors
+
+# print(joint_commands.values())
+for motor, position, velocity, torque, kp, kd in zip(motors.values(), joint_commands["positions"], joint_commands["velocities"], joint_commands["torques"], joint_commands["kp"], joint_commands["kd"]):
+    print(f"Motor {motor}, kp {kp}, kd {kd}")

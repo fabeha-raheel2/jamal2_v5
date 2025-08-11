@@ -107,7 +107,7 @@ class JamalController:
             self.publish_joint_feedback()
             
     def send_motor_commands(self):
-        for motor, position, velocity, torque, kp, kd in zip(self.motors.values(), self.joint_commands.items()):
+        for motor, position, velocity, torque, kp, kd in zip(self.motors.values(), self.joint_commands["positions"], self.joint_commands["velocities"], self.joint_commands["torques"], self.joint_commands["kp"], self.joint_commands["kd"]):
 
             # Send the command    
             try:
