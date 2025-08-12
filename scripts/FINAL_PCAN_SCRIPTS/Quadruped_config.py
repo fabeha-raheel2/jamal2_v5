@@ -28,6 +28,7 @@ MOTOR_IDS = {
 #              'rh_hip_joint':0x0A, 'rh_upper_leg_joint':0x0B, 'rh_lower_leg_joint':0x0C
 #              }
 
+#lower leg limit to -55
 # Min, Max and offset values in degrees 
 MOTOR_MIN_MAX_OFFSET_MULT  = {
     'RF_HAA':(-35, 35, 0, -1), 'RF_HFE':(-20, 90, 90, 1), 'RF_KFE':(-153, -55, -153, -0.88),   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
