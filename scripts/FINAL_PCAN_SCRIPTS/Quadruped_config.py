@@ -30,10 +30,10 @@ MOTOR_IDS = {
 
 # Min, Max and offset values in degrees 
 MOTOR_MIN_MAX_OFFSET_MULT  = {
-    'RF_HAA':(-35, 35, 0, -1), 'RF_HFE':(-20, 90, 90, 1), 'RF_KFE':(-153, -47, -153, -0.88),   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
-    'LF_HAA':(-35, 35, 0, -1), 'LF_HFE':(-20, 90, 90, -1), 'LF_KFE':(-153, -47, -153, 0.88),   # Left Front
-    'RH_HAA':(-35, 35, 0, 1), 'RH_HFE':(-20, 90, 90, 1), 'RH_KFE':(-153, -47, -153, -0.88),   # Right Hind
-    'LH_HAA':(-35, 35, 0, 1), 'LH_HFE':(-20, 90, 90, -1), 'LH_KFE':(-153, -47, -153, 0.88)    # Left Hind
+    'RF_HAA':(-35, 35, 0, -1), 'RF_HFE':(-20, 90, 90, 1), 'RF_KFE':(-153, -55, -153, -0.88),   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
+    'LF_HAA':(-35, 35, 0, -1), 'LF_HFE':(-20, 90, 90, -1), 'LF_KFE':(-153, -55, -153, 0.88),   # Left Front
+    'RH_HAA':(-35, 35, 0, 1), 'RH_HFE':(-20, 90, 90, 1), 'RH_KFE':(-153, -55, -153, -0.88),   # Right Hind
+    'LH_HAA':(-35, 35, 0, 1), 'LH_HFE':(-20, 90, 90, -1), 'LH_KFE':(-153, -55, -153, 0.88)    # Left Hind
              }
 
 # MOTOR_MIN_MAX_OFFSET_MULT = {'lf_hip_joint':(-35, 35, 0, -1), 'lf_upper_leg_joint':(-20, 90, 90, -1), 'lf_lower_leg_joint':(-153, -47, -153, 0.88),

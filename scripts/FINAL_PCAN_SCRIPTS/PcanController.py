@@ -86,7 +86,7 @@ class PcanController:
             t_out = self.uint_to_float(t_int, -T_MAX, T_MAX, 12)
 
             output = f"Measured -> Pos: {p_out:.2f}, Vel: {v_out:.2f}, Trq: {t_out:.2f}"
-            print(output)
+            # print(output)
         else:
             output = "No response from actuator."
             print(output)

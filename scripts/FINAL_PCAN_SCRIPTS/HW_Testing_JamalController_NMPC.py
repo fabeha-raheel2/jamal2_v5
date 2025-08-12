@@ -33,7 +33,7 @@ class Motor:
         return f"Motor {self.name} with ID {self.id}"
 
 class JamalController:
-    def __init__(self, publish_feedback=True, debug=False):
+    def __init__(self, publish_feedback=True, debug=True):
         self._debug = debug
 
         self.pcan_bus = PcanController()
@@ -91,16 +91,17 @@ class JamalController:
                 self.joint_state_publisher.publish(msg)
 
     def controller_callback(self, msg):
-        self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[], "kd":[]}
+        self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[10]*12, "kd":[]}
 
         # Get the commands from the NMPC + WBC controller
         self.joint_commands["positions"] = msg.data[0:12]
         self.joint_commands["velocities"] = msg.data[12:24]
-        self.joint_commands["kp"] = msg.data[24:36]
+        # self.joint_commands["kp"] = msg.data[24:36]
         self.joint_commands["kd"] = msg.data[36:48]
         self.joint_commands["torques"] = msg.data[48:60]
+        # print(msg.data)
 
-        print("Joint Commands: ", self.joint_commands)
+        # print("Joint Commands: ", self.joint_commands)
 
         # Send these commands to each of the motors
         self.send_motor_commands()
@@ -145,7 +146,7 @@ class JamalController:
         msg.position = self.joint_states['positions']
         msg.velocity = self.joint_states['velocities']
         msg.effort = self.joint_states['torques']
-        print(self.joint_states)
+        # print(self.joint_states)
         self.joint_state_publisher.publish(msg)
 
             
