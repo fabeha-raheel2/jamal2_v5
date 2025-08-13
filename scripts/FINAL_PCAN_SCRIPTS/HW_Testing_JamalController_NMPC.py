@@ -134,7 +134,7 @@ class JamalController:
                 break
 
             # Save the feedback
-            self.joint_states['positions'].append(feedback['position'])
+            self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
             self.joint_states['velocities'].append(feedback['velocity'])
             self.joint_states['torques'].append(feedback['torque'])
 
