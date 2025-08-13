@@ -62,7 +62,7 @@ class JamalController:
         self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', Float64MultiArray, self.controller_callback)
         
         if self.publish_joint_state:
-            self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
+            self.joint_state_publisher = rospy.Publisher('/joint_states2', JointState, queue_size=10)
 
         self.pcan_bus.initialize()
 
