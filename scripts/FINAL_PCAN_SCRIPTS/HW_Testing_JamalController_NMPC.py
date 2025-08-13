@@ -91,14 +91,14 @@ class JamalController:
                 self.joint_state_publisher.publish(msg)
 
     def controller_callback(self, msg):
-        self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[10]*12, "kd":[]}
+        self.joint_commands = {"positions":[], "velocities":[], "torques":[0]*12, "kp":[0]*12, "kd":[0]*12}
 
         # Get the commands from the NMPC + WBC controller
         self.joint_commands["positions"] = msg.data[0:12]
         self.joint_commands["velocities"] = msg.data[12:24]
         # self.joint_commands["kp"] = msg.data[24:36]
-        self.joint_commands["kd"] = msg.data[36:48]
-        self.joint_commands["torques"] = msg.data[48:60]
+        # self.joint_commands["kd"] = msg.data[36:48]
+        # self.joint_commands["torques"] = msg.data[48:60]
         # print(msg.data)
 
         # print("Joint Commands: ", self.joint_commands)
@@ -146,7 +146,7 @@ class JamalController:
         msg.position = self.joint_states['positions']
         msg.velocity = self.joint_states['velocities']
         msg.effort = self.joint_states['torques']
-        # print(self.joint_states)
+        print(self.joint_states)
         self.joint_state_publisher.publish(msg)
 
             
