@@ -62,7 +62,7 @@ class JamalController:
         self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', Float64MultiArray, self.controller_callback)
         
         if self.publish_joint_state:
-            self.joint_state_publisher = rospy.Publisher('/joint_states2', JointState, queue_size=10)
+            self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
 
         self.pcan_bus.initialize()
 
@@ -91,13 +91,14 @@ class JamalController:
                 self.joint_state_publisher.publish(msg)
 
     def controller_callback(self, msg):
-        self.joint_commands = {"positions":[], "velocities":[], "torques":[0]*12, "kp":[0]*12, "kd":[0]*12}
+        self.joint_commands = {"positions":[], "velocities":[0]*12, "torques":[1]*12, "kp":[10]*12, "kd":[2]*12}
 
         # Get the commands from the NMPC + WBC controller
         self.joint_commands["positions"] = msg.data[0:12]
-        self.joint_commands["velocities"] = msg.data[12:24]
+        # self.joint_commands["velocities"] = msg.data[12:24]
         # self.joint_commands["kp"] = msg.data[24:36]
         # self.joint_commands["kd"] = msg.data[36:48]
+        # print(self.joint_commands["kp"])
         # self.joint_commands["torques"] = msg.data[48:60]
         # print(msg.data)
 
@@ -146,7 +147,7 @@ class JamalController:
         msg.position = self.joint_states['positions']
         msg.velocity = self.joint_states['velocities']
         msg.effort = self.joint_states['torques']
-        print(self.joint_states)
+        # print(self.joint_states)
         self.joint_state_publisher.publish(msg)
 
             

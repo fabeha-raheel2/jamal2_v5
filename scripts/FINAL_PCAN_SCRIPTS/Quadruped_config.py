@@ -51,5 +51,5 @@ KD_MIN, KD_MAX = 0.1, 5.0
 T_MIN, T_MAX = -144.0, 144.0
 
 # Default control values
-V_IN, KP_IN, KD_IN, T_IN = 0.0, 30.0, 3.0, 1.0
+V_IN, KP_IN, KD_IN, T_IN = 0.0, 0, 3.0, 1.0
 
