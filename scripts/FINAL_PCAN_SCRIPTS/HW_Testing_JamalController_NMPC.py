@@ -27,8 +27,8 @@ class Motor:
     def adjust_position(self, pos):
         return self.multiplier * (self.constrain(val=round(pos, 3), min=self.min_position, max=self.max_position) - self.offset)
     
-    def constrain(self, val, min, max):
-        return max(min, min(val, max))
+    def constrain(self, val, min_val, max_val):
+        return max(min_val, min(val, max_val))
     
     def readjust_position(self, pos):
         return (pos / self.multiplier) + self.offset
