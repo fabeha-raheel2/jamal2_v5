@@ -25,7 +25,7 @@ class Motor:
         self.max_velocity = max_velocity
 
     def adjust_position(self, pos):
-        return self.multiplier * (self.constrain(val=round(pos, 3), min=self.min_position, max=self.max_position) - self.offset)
+        return self.multiplier * (self.constrain(val=round(pos, 3), min_val=self.min_position, max_val=self.max_position) - self.offset)
     
     def constrain(self, val, min_val, max_val):
         return max(min_val, min(val, max_val))
@@ -34,13 +34,13 @@ class Motor:
         return (pos / self.multiplier) + self.offset
     
     def adjust_torque(self, torque):
-        return self.multiplier * self.constrain(val=round(torque, 3), min=self.min_torque, max=self.max_torque) 
+        return self.multiplier * self.constrain(val=round(torque, 3), min_val=self.min_torque, max_val=self.max_torque) 
     
     def readjust_torque(self, torque):
         return (torque / self.multiplier)
     
     def adjust_velocity(self, velocity):
-        return self.multiplier * self.constrain(val=round(velocity, 3), min=self.min_velocity, max=self.max_velocity) 
+        return self.multiplier * self.constrain(val=round(velocity, 3), min_val=self.min_velocity, max_val=self.max_velocity) 
     
     def readjust_velocity(self, velocity):
         return (velocity / self.multiplier)
