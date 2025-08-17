@@ -104,13 +104,15 @@ class JamalController:
         # self.joint_commands["kd"] = msg.data[36:48]
         # self.joint_commands["torques"] = msg.data[48:60]
         
-        self.joint_commands["positions"] = msg.points[0].positions
-        self.joint_commands["velocities"] = msg.points[0].velocities
+        # self.joint_commands["positions"] = msg.points[0].positions
+        # self.joint_commands["velocities"] = msg.points[0].velocities
+        self.joint_commands["positions"] = [0] *12
+        self.joint_commands["velocities"] = [0] *12
         self.joint_commands["kp"] = [0] *12
         self.joint_commands["kd"] = [3.0] *12
         self.joint_commands["torques"] = msg.points[0].effort
 
-        # print("Joint Commands: ", self.joint_commands)
+        print("Joint Commands: ", self.joint_commands)
 
     def run_loop(self):
         while not rospy.is_shutdown():
@@ -125,7 +127,7 @@ class JamalController:
         self.joint_states = {"positions":[], "velocities":[], "torques":[]}
         self.joint_names = []
 
-        if len(self.joint_commands["positions"]) == 0:
+        if len(self.joint_commands["positions"]) != 0:
 
             for motor, position, velocity, torque, kp, kd in zip(self.motors.values(), self.joint_commands["positions"], self.joint_commands["velocities"], self.joint_commands["torques"], self.joint_commands["kp"], self.joint_commands["kd"]):
 
