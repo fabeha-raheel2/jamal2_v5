@@ -112,7 +112,7 @@ class JamalController:
         # print("Joint Commands: ", self.joint_commands)
 
         # Send these commands to each of the motors
-        # self.send_motor_commands()
+        self.send_motor_commands()
 
         # Publish the feedback of all 12 motors
         if self.publish_joint_state:
