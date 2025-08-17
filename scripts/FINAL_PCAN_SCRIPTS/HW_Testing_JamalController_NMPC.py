@@ -36,8 +36,14 @@ class Motor:
     def adjust_torque(self, torque):
         return self.multiplier * self.constrain(val=round(torque, 3), min=self.min_torque, max=self.max_torque) 
     
+    def readjust_torque(self, torque):
+        return (torque / self.multiplier)
+    
     def adjust_velocity(self, velocity):
         return self.multiplier * self.constrain(val=round(velocity, 3), min=self.min_velocity, max=self.max_velocity) 
+    
+    def readjust_velocity(self, velocity):
+        return (velocity / self.multiplier)
     
     def __str__(self):
         return f"Motor {self.name} with ID {self.id}"
@@ -167,8 +173,8 @@ class JamalController:
 
                 # Save the feedback
                 self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                self.joint_states['velocities'].append(feedback['velocity'])
-                self.joint_states['torques'].append(feedback['torque'])
+                self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
                 self.joint_names.append(motor.name)
 
     def publish_joint_feedback(self):
