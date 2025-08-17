@@ -11,7 +11,7 @@ class PcanController:
         self.pcan = PCANBasic()
         self.channel = PCAN_USBBUS1
         self.baudrate = PCAN_BAUD_1M
-        self.frequency = 50     #hertz
+        self.frequency = 500     #hertz
         self.delay = 1/self.frequency
 
         # Motor mode commands
