@@ -59,7 +59,8 @@ class JamalController:
         # Jamal Motor Control Node
 
         rospy.init_node("Motor_Control_Node")
-        self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', Float64MultiArray, self.controller_callback)
+        # self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', Float64MultiArray, self.controller_callback)
+        self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', JointTrajectory, self.controller_callback)
         
         if self.publish_joint_state:
             self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
@@ -96,12 +97,18 @@ class JamalController:
         self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[], "kd":[]}
 
         # Get the commands from the NMPC + WBC controller
-        self.joint_commands["positions"] = msg.data[0:12]
-        self.joint_commands["velocities"] = msg.data[12:24]
-        self.joint_commands["kp"] = msg.data[24:36]
-        self.joint_commands["kd"] = msg.data[36:48]
-        self.joint_commands["torques"] = msg.data[48:60]
-        rospy.loginfo(msg.data)
+        # self.joint_commands["positions"] = msg.data[0:12]
+        # self.joint_commands["velocities"] = msg.data[12:24]
+        # self.joint_commands["kp"] = msg.data[24:36]
+        # self.joint_commands["kd"] = msg.data[36:48]
+        # self.joint_commands["torques"] = msg.data[48:60]
+        
+        self.joint_commands["positions"] = msg.points[0].positions
+        self.joint_commands["velocities"] = msg.points[0].velocities
+        self.joint_commands["kp"] = [0] *12
+        self.joint_commands["kd"] = [3.0] *12
+        self.joint_commands["torques"] = msg.points[0].effort
+
         # print(self.joint_commands["positions"])
         # print(self.joint_commands["velocities"])
         # print(self.joint_commands["kp"])
