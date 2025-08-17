@@ -67,6 +67,7 @@ class JamalController:
         self.pcan_bus.initialize()
 
         self.feedback_positions = []
+        self.joint_names = []
         if self.publish_joint_state:
             if self._debug:
                 user_input = input("Set Motors 0 Position?")
@@ -77,6 +78,7 @@ class JamalController:
                         self.pcan_bus.enable_motor_mode(motor_id=motor.id)
                         self.pcan_bus.send_position(motor_id=motor.id, pos=0)
                         self.feedback_positions.append(motor.readjust_position(pos=0))
+                        self.joint_names.append(motor.name)
             # else:
             #     self.feedback_positions.append(motor.readjust_position(pos=0))
 
@@ -85,7 +87,7 @@ class JamalController:
                 msg = JointState()
 
                 msg.header.stamp = rospy.Time.now()
-                msg.name = JOINT_NAMES
+                msg.name = self.joint_names
                 msg.position = self.feedback_positions
 
                 self.joint_state_publisher.publish(msg)
@@ -113,6 +115,7 @@ class JamalController:
             
     def send_motor_commands(self):
         self.joint_states = {"positions":[], "velocities":[], "torques":[]}
+        self.joint_names = []
 
         for motor, position, velocity, torque, kp, kd in zip(self.motors.values(), self.joint_commands["positions"], self.joint_commands["velocities"], self.joint_commands["torques"], self.joint_commands["kp"], self.joint_commands["kd"]):
 
@@ -138,12 +141,13 @@ class JamalController:
             self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
             self.joint_states['velocities'].append(feedback['velocity'])
             self.joint_states['torques'].append(feedback['torque'])
+            self.joint_names.append(motor.name)
 
     def publish_joint_feedback(self):
         msg = JointState()
 
         msg.header.stamp = rospy.Time.now()
-        msg.name = JOINT_NAMES
+        msg.name = self.joint_names
         msg.position = self.joint_states['positions']
         msg.velocity = self.joint_states['velocities']
         msg.effort = self.joint_states['torques']
