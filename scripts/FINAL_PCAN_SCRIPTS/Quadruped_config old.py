@@ -1,9 +1,17 @@
 # Robot Joint Names 
-JOINT_NAMES = ['lf_hip_joint', 'lf_upper_leg_joint', 'lf_lower_leg_joint', 
-               'rf_hip_joint', 'rf_upper_leg_joint', 'rf_lower_leg_joint', 
-               'lh_hip_joint', 'lh_upper_leg_joint', 'lh_lower_leg_joint', 
-               'rh_hip_joint', 'rh_upper_leg_joint', 'rh_lower_leg_joint'
-               ]
+# JOINT_NAMES = ['lf_hip_joint', 'lf_upper_leg_joint', 'lf_lower_leg_joint', 
+#                'rf_hip_joint', 'rf_upper_leg_joint', 'rf_lower_leg_joint', 
+#                'lh_hip_joint', 'lh_upper_leg_joint', 'lh_lower_leg_joint', 
+#                'rh_hip_joint', 'rh_upper_leg_joint', 'rh_lower_leg_joint'
+#                ]
+
+JOINT_NAMES = [
+    'RF_HAA', 'RF_HFE', 'RF_KFE',   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
+    'LF_HAA', 'LF_HFE', 'LF_KFE',   # Left Front
+    'RH_HAA', 'RH_HFE', 'RH_KFE',   # Right Hind
+    'LH_HAA', 'LH_HFE', 'LH_KFE'    # Left Hind
+]
+
 
 # Motor IDs 
 MOTOR_IDS = {'lf_hip_joint':0x01, 'lf_upper_leg_joint':0x02, 'lf_lower_leg_joint':0x03,
