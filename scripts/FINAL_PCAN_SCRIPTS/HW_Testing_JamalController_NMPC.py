@@ -101,7 +101,7 @@ class JamalController:
         self.joint_commands["kp"] = msg.data[24:36]
         self.joint_commands["kd"] = msg.data[36:48]
         self.joint_commands["torques"] = msg.data[48:60]
-        print(msg.data)
+        rospy.loginfo(msg.data)
         # print(self.joint_commands["positions"])
         # print(self.joint_commands["velocities"])
         # print(self.joint_commands["kp"])
@@ -112,7 +112,7 @@ class JamalController:
         # print("Joint Commands: ", self.joint_commands)
 
         # Send these commands to each of the motors
-        # self.send_motor_commands()
+        self.send_motor_commands()
 
         # Publish the feedback of all 12 motors
         if self.publish_joint_state:
