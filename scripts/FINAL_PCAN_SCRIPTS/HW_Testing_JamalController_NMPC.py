@@ -10,22 +10,34 @@ from Quadruped_config import *
 from PcanController import *
 
 class Motor:
-    def __init__(self, name='no_name', id=1, min_value=0, max_value=90, offset=0, multiplier=1):
+    def __init__(self, name='no_name', id=1, min_position=0, max_position=90, offset=0, multiplier=1, 
+                 max_torque=144, min_torque=-144,
+                 min_velocity=-8, max_velocity=8):
         self.name = name
         self.id = id
-        self.min_value = min_value
-        self.max_value = max_value
+        self.min_position = min_position
+        self.max_position = max_position
         self.offset = offset
         self.multiplier = multiplier
+        self.min_torque = min_torque
+        self.max_torque = max_torque
+        self.min_velocity = min_velocity
+        self.max_velocity = max_velocity
 
     def adjust_position(self, pos):
-        return self.multiplier * (self.constrain(round(pos, 3)) - self.offset)
+        return self.multiplier * (self.constrain(val=round(pos, 3), min=self.min_position, max=self.max_position) - self.offset)
     
-    def constrain(self, val):
-        return max(self.min_value, min(val, self.max_value))
+    def constrain(self, val, min, max):
+        return max(min, min(val, max))
     
     def readjust_position(self, pos):
         return (pos / self.multiplier) + self.offset
+    
+    def adjust_torque(self, torque):
+        return self.multiplier * self.constrain(val=round(torque, 3), min=self.min_torque, max=self.max_torque) 
+    
+    def adjust_velocity(self, velocity):
+        return self.multiplier * self.constrain(val=round(velocity, 3), min=self.min_velocity, max=self.max_velocity) 
     
     def __str__(self):
         return f"Motor {self.name} with ID {self.id}"
@@ -52,10 +64,14 @@ class JamalController:
         for motor in MOTOR_IDS.keys():
             self.motors[motor] = Motor(name=motor,
                                        id=MOTOR_IDS[motor],
-                                       min_value=math.radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][0]),
-                                       max_value=math.radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][1]),
+                                       min_position=math.radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][0]),
+                                       max_position=math.radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][1]),
                                        offset=math.radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][2]),
-                                       multiplier=MOTOR_MIN_MAX_OFFSET_MULT[motor][3])
+                                       multiplier=MOTOR_MIN_MAX_OFFSET_MULT[motor][3],
+                                       min_torque=T_MIN,
+                                       max_torque=T_MAX,
+                                       min_velocity=V_MIN,
+                                       max_velocity=V_MAX)
 
         # Jamal Motor Control Node
 
@@ -135,8 +151,8 @@ class JamalController:
                 try:
                     feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
                                                                 pos=motor.adjust_position(position), 
-                                                                v_in=velocity,
-                                                                t_in=torque,
+                                                                v_in=motor.adjust_velocity(velocity),
+                                                                t_in=motor.adjust_torque(torque),
                                                                 kp_in=kp,
                                                                 kd_in=kd)
                     

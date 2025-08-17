@@ -48,7 +48,7 @@ P_MIN, P_MAX = -12.5, 12.5
 V_MIN, V_MAX = -8.0, 8.0
 KP_MIN, KP_MAX = 1.0, 100.0
 KD_MIN, KD_MAX = 0.1, 5.0
-T_MIN, T_MAX = -144.0, 144.0
+T_MIN, T_MAX = -48.0, 48.0
 
 # Default control values
 V_IN, KP_IN, KD_IN, T_IN = 0.0, 0, 3.0, 1.0
