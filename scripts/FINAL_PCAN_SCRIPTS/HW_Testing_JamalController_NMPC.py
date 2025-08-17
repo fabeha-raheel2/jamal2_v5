@@ -101,7 +101,7 @@ class JamalController:
         self.joint_commands["kp"] = msg.data[24:36]
         self.joint_commands["kd"] = msg.data[36:48]
         self.joint_commands["torques"] = msg.data[48:60]
-        print(msg.data)
+        rospy.loginfo(msg.data)
         # print(self.joint_commands["positions"])
         # print(self.joint_commands["velocities"])
         # print(self.joint_commands["kp"])
