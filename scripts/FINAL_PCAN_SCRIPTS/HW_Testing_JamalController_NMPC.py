@@ -66,6 +66,8 @@ class JamalController:
 
         self.motors = MOTOR_IDS.copy()
 
+        self.last_joint_states = self.joint_states.copy()
+
         # TO-DO: Do we still need this?
         for motor in MOTOR_IDS.keys():
             self.motors[motor] = Motor(name=motor,
@@ -153,23 +155,42 @@ class JamalController:
 
             for motor, position, velocity, torque, kp, kd in zip(self.motors.values(), self.joint_commands["positions"], self.joint_commands["velocities"], self.joint_commands["torques"], self.joint_commands["kp"], self.joint_commands["kd"]):
 
-                # Send the command    
-                try:
-                    feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
-                                                                pos=motor.adjust_position(position), 
-                                                                v_in=motor.adjust_velocity(velocity),
-                                                                t_in=motor.adjust_torque(torque),
-                                                                kp_in=kp,
-                                                                kd_in=kd)
-                    
-                except KeyboardInterrupt:
-                    print("\nDisabling motor and exiting...")
-                    
-                    for id in MOTOR_IDS.values():
-                        self.pcan_bus.disable_motor_mode(motor_id=id)
-                    
-                    self.pcan_bus.clean()
-                    break
+                if position > motor.min_position and position < motor.max_position:
+                    # Send the command    
+                    try:
+                        feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
+                                                                    pos=motor.adjust_position(position), 
+                                                                    v_in=motor.adjust_velocity(velocity),
+                                                                    t_in=motor.adjust_torque(torque),
+                                                                    kp_in=kp,
+                                                                    kd_in=kd)
+                        
+                    except KeyboardInterrupt:
+                        print("\nDisabling motor and exiting...")
+                        
+                        for id in MOTOR_IDS.values():
+                            self.pcan_bus.disable_motor_mode(motor_id=id)
+                        
+                        self.pcan_bus.clean()
+                        break
+                else:
+                    # Send the command    
+                    try:
+                        feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
+                                                                    pos=motor.adjust_position(position), 
+                                                                    v_in=0,
+                                                                    t_in=0,
+                                                                    kp_in=kp,
+                                                                    kd_in=kd)
+                        
+                    except KeyboardInterrupt:
+                        print("\nDisabling motor and exiting...")
+                        
+                        for id in MOTOR_IDS.values():
+                            self.pcan_bus.disable_motor_mode(motor_id=id)
+                        
+                        self.pcan_bus.clean()
+                        break
 
                 # Save the feedback
                 self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
