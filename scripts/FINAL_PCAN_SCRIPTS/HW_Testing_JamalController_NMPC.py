@@ -193,10 +193,21 @@ class JamalController:
                         break
 
                 # Save the feedback
-                self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                self.joint_names.append(motor.name)
+                if feedback is None:
+                    print(f"Motor {motor.name} did not respond.")
+
+                    # TO-DO: Handle this case properly
+                    self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
+                    self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                    self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
+                    self.joint_names.append(motor.name)
+                    
+                    continue
+                else:
+                    self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
+                    self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                    self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
+                    self.joint_names.append(motor.name)
 
     def publish_joint_feedback(self):
         msg = JointState()

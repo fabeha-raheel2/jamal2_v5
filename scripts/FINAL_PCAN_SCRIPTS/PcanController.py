@@ -87,11 +87,13 @@ class PcanController:
 
             output = f"Measured -> Pos: {p_out:.2f}, Vel: {v_out:.2f}, Trq: {t_out:.2f}"
             # print(output)
+            return {'position':p_out, 'velocity':v_out, 'torque': t_out}
         else:
             output = "No response from actuator."
             print(output)
+            return None
 
-        return {'position':p_out, 'velocity':v_out, 'torque': t_out}
+        
 
     def pack_cmd(self, p_in, v_in, kp_in, kd_in, t_in):
         p_des = max(min(p_in, P_MAX), P_MIN)
