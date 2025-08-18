@@ -11,7 +11,7 @@ from PcanController import *
 
 class Motor:
     def __init__(self, name='no_name', id=1, min_position=0, max_position=90, offset=0, multiplier=1, 
-                 max_torque=144, min_torque=-144,
+                 max_torque=48, min_torque=-48,
                  min_velocity=-8, max_velocity=8):
         self.name = name
         self.id = id
@@ -125,11 +125,11 @@ class JamalController:
         # self.joint_commands["kp"] = msg.data[24:36]
         # self.joint_commands["kd"] = msg.data[36:48]
         # self.joint_commands["torques"] = msg.data[48:60]
-        
-        # self.joint_commands["positions"] = msg.points[0].positions
-        # self.joint_commands["velocities"] = msg.points[0].velocities
-        self.joint_commands["positions"] = [0] *12
-        self.joint_commands["velocities"] = [0] *12
+
+        # self.joint_commands["positions"] = [0] *12
+        # self.joint_commands["velocities"] = [0] *12        
+        self.joint_commands["positions"] = msg.points[0].positions
+        self.joint_commands["velocities"] = msg.points[0].velocities
         self.joint_commands["kp"] = [0] *12
         self.joint_commands["kd"] = [3.0] *12
         self.joint_commands["torques"] = msg.points[0].effort
