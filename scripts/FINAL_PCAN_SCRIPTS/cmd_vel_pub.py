@@ -27,10 +27,10 @@ def main():
     # Create publisher for /cmd_vel topic
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 
-    publish_vel(pub, lin_z=0.5)
+    publish_vel(pub, lin_z=0.01)
     time.sleep(0.5)
     publish_vel(pub,lin_z=0.0)
-    time.sleep(0.5)
+    time.sleep(0.2)
 
     
 

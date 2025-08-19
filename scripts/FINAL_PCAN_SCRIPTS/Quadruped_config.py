@@ -40,10 +40,10 @@ MOTOR_IDS = {
 
 # These offesets are for robot lying on the ground with legs close
 MOTOR_MIN_MAX_OFFSET_MULT  = {
-    'RF_HAA':(-35, 35, -23, -1), 'RF_HFE':(-20, 90, 67, 1), 'RF_KFE':(-153, -55, -153, -0.88),   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
-    'LF_HAA':(-35, 35, 23, -1), 'LF_HFE':(-20, 90, 67, -1), 'LF_KFE':(-153, -55, -153, 0.88),   # Left Front
-    'RH_HAA':(-35, 35, -23, 1), 'RH_HFE':(-20, 90, 67, 1), 'RH_KFE':(-153, -55, -153, -0.88),   # Right Hind
-    'LH_HAA':(-35, 35, 23, 1), 'LH_HFE':(-20, 90, 67, -1), 'LH_KFE':(-153, -55, -153, 0.88)    # Left Hind
+    'RF_HAA':(-25, 15, -23, -1), 'RF_HFE':(-20, 90, 67, 1), 'RF_KFE':(-153, -55, -153, -0.88),   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
+    'LF_HAA':(-15, 25, 23, -1), 'LF_HFE':(-20, 90, 67, -1), 'LF_KFE':(-153, -55, -153, 0.88),   # Left Front
+    'RH_HAA':(-25, 15, -23, 1), 'RH_HFE':(-20, 90, 67, 1), 'RH_KFE':(-153, -55, -153, -0.88),   # Right Hind
+    'LH_HAA':(-15, 25, 23, 1), 'LH_HFE':(-20, 90, 67, -1), 'LH_KFE':(-153, -55, -153, 0.88)    # Left Hind
              }
 
 
