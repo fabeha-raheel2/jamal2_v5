@@ -18,8 +18,6 @@ class PcanController:
         self.MotorModeOn = [0xFF]*7 + [0xFC]
         self.MotorModeOff = [0xFF]*7 + [0xFD]
         self.SetOrigin = [0xFF]*7 + [0xFE]
-        self.last_feedback = {}  # key: motor_id, value: {'position':..., 'velocity':..., 'torque':...}
-
 
     def initialize(self):
         self.pcan.Initialize(self.channel, self.baudrate)
@@ -61,8 +59,7 @@ class PcanController:
     def send_motor_data(self, motor_id, pos, v_in, kp_in, kd_in, t_in):
         data = self.pack_cmd(pos, v_in, kp_in, kd_in, t_in)
         self.send_can_msg(data, id=motor_id)
-        return self.receive_can_msg(motor_id=motor_id)
-
+        return self.receive_can_msg()
     
     def clean(self):
         # self.disable_motor_mode()
@@ -77,7 +74,7 @@ class PcanController:
         self.pcan.Write(self.channel, msg)
         time.sleep(self.delay)
 
-    def receive_can_msg(self, motor_id=None):
+    def receive_can_msg(self):
         result, msg, timestamp = self.pcan.Read(self.channel)
         if result == PCAN_ERROR_OK:
             buf = list(msg.DATA)
@@ -88,17 +85,13 @@ class PcanController:
             v_out = self.uint_to_float(v_int, V_MIN, V_MAX, 12)
             t_out = self.uint_to_float(t_int, -T_MAX, T_MAX, 12)
 
-            feedback = {'position': p_out, 'velocity': v_out, 'torque': t_out}
-            if motor_id is not None:
-                self.last_feedback[motor_id] = feedback  # update last known values
-            return feedback
+            output = f"Measured -> Pos: {p_out:.2f}, Vel: {v_out:.2f}, Trq: {t_out:.2f}"
+            # print(output)
+            return {'position':p_out, 'velocity':v_out, 'torque': t_out}
         else:
-            print("No response from actuator.")
-            if motor_id is not None and motor_id in self.last_feedback:
-                return self.last_feedback[motor_id]  # return last known values
-            else:
-                return {'position': 0.0, 'velocity': 0.0, 'torque': 0.0}
-
+            output = "No response from actuator."
+            print(output)
+            return None
 
         
 
