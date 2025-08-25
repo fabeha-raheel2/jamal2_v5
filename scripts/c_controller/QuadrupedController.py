@@ -73,8 +73,8 @@ class QuadrupedController:
                         self.pcan_bus.enable_motor_mode(motor_id=motor.id)
                         self.feedback_positions.append(motor.readjust_position(pos=0))
                         self.joint_names.append(motor.name)
-            else:
-                self.feedback_positions.append(motor.readjust_position(pos=0))
+            # else:
+            #     self.feedback_positions.append(motor.readjust_position(pos=0))
 
         if self.publish_joint_state:
                 msg = JointState()
