@@ -18,8 +18,6 @@ class PcanController:
         self.MotorModeOn = [0xFF]*7 + [0xFC]
         self.MotorModeOff = [0xFF]*7 + [0xFD]
         self.SetOrigin = [0xFF]*7 + [0xFE]
-        self.last_feedback = {}
-        
         
 
     def initialize(self):
@@ -55,11 +53,9 @@ class PcanController:
                 break
 
     def send_position(self, motor_id, pos):
-        """Send desired position and return feedback (safe with fallback)."""
         data = self.pack_cmd(pos, self.v_in, self.kp_in, self.kd_in, self.t_in)
         self.send_can_msg(data, id=motor_id)
-        feedback = self.receive_can_msg(motor_id=motor_id)
-        return feedback['position']
+        return self.receive_can_msg()['position']
     
     def send_motor_data(self, motor_id, pos, v_in, kp_in, kd_in, t_in):
         data = self.pack_cmd(pos, v_in, kp_in, kd_in, t_in)
@@ -79,33 +75,27 @@ class PcanController:
         self.pcan.Write(self.channel, msg)
         time.sleep(self.delay)
 
-    def receive_can_msg(self, motor_id=None):
-        """Read a CAN frame and decode. Falls back to last known feedback if no reply."""
+    def receive_can_msg(self):
         result, msg, timestamp = self.pcan.Read(self.channel)
         if result == PCAN_ERROR_OK:
             buf = list(msg.DATA)
             p_int = (buf[1] << 8) | buf[2]
             v_int = (buf[3] << 4) | (buf[4] >> 4)
             t_int = ((buf[4] & 0xF) << 8) | buf[5]
-
             p_out = self.uint_to_float(p_int, P_MIN, P_MAX, 16)
             v_out = self.uint_to_float(v_int, V_MIN, V_MAX, 12)
             t_out = self.uint_to_float(t_int, -T_MAX, T_MAX, 12)
 
-            feedback = {'position': p_out, 'velocity': v_out, 'torque': t_out}
-
-            if motor_id is not None:
-                self.last_feedback[motor_id] = feedback  # update cache
-
-            return feedback
+            output = f"Measured -> Pos: {p_out:.2f}, Vel: {v_out:.2f}, Trq: {t_out:.2f}"
+            # print(output)
+            return {'position':p_out, 'velocity':v_out, 'torque': t_out}
         else:
-            print("No response from actuator.")
-            if motor_id is not None and motor_id in self.last_feedback:
-                return self.last_feedback[motor_id]  # return last known values
-            else:
-                return {'position': 0.0, 'velocity': 0.0, 'torque': 0.0}
+            output = "No response from actuator."
+            print(output)
+            return None
 
         
+
     def pack_cmd(self, p_in, v_in, kp_in, kd_in, t_in):
         p_des = max(min(p_in, P_MAX), P_MIN)
         v_des = max(min(v_in, V_MAX), V_MIN)
@@ -148,5 +138,3 @@ class PcanController:
         elif bits == 16:
             return x_int * span / 65535.0 + offset
         return 0.0
-
-

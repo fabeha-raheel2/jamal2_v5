@@ -69,10 +69,12 @@ class QuadrupedController:
 
                 if user_input == "y" or user_input == "Y":
                     for motor in self.motors.values():
+                        print(motor.name)
                         self.pcan_bus.set_motor_origin(motor_id=motor.id)
                         self.pcan_bus.enable_motor_mode(motor_id=motor.id)
                         self.feedback_positions.append(motor.readjust_position(pos=0))
                         self.joint_names.append(motor.name)
+                        
             # else:
             #     self.feedback_positions.append(motor.readjust_position(pos=0))
 
