@@ -127,16 +127,17 @@ class JamalController:
         # self.joint_commands["kp"] = msg.data[24:36]
         # self.joint_commands["kd"] = msg.data[36:48]
         # self.joint_commands["torques"] = msg.data[48:60]
-
-        # self.joint_commands["positions"] = [0] *12
-        # self.joint_commands["velocities"] = [0] *12        
+    
         self.joint_commands["positions"] = msg.points[0].positions
-        self.joint_commands["velocities"] = msg.points[0].velocities
+        # self.joint_commands["positions"] = [0] *12
+        # self.joint_commands["velocities"] = msg.points[0].velocities
+        self.joint_commands["velocities"] = [0] *12
         self.joint_commands["kp"] = [0] *12
-        self.joint_commands["kd"] = [3.0] *12
+        self.joint_commands["kd"] = [0] *12
         self.joint_commands["torques"] = msg.points[0].effort
+        # self.joint_commands["torques"] = [0] *12
 
-        print("Joint Commands: ", self.joint_commands)
+        # print("Joint Commands: ", self.joint_commands)
 
     def run_loop(self):
         while not rospy.is_shutdown():
@@ -180,8 +181,8 @@ class JamalController:
                                                                     pos=motor.adjust_position(position), 
                                                                     v_in=0,
                                                                     t_in=0,
-                                                                    kp_in=kp,
-                                                                    kd_in=kd)
+                                                                    kp_in=0,
+                                                                    kd_in=0)
                         
                     except KeyboardInterrupt:
                         print("\nDisabling motor and exiting...")
