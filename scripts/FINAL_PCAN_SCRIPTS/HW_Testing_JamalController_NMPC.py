@@ -128,12 +128,12 @@ class JamalController:
         # self.joint_commands["kd"] = msg.data[36:48]
         # self.joint_commands["torques"] = msg.data[48:60]
     
-        self.joint_commands["positions"] = msg.points[0].positions
-        # self.joint_commands["positions"] = [0] *12
+        # self.joint_commands["positions"] = msg.points[0].positions
+        self.joint_commands["positions"] = [0] *12
         # self.joint_commands["velocities"] = msg.points[0].velocities
-        self.joint_commands["velocities"] = [0] *12
+        self.joint_commands["velocities"] = [0]*12
         self.joint_commands["kp"] = [0] *12
-        self.joint_commands["kd"] = [0] *12
+        self.joint_commands["kd"] = [3] *12
         self.joint_commands["torques"] = msg.points[0].effort
         # self.joint_commands["torques"] = [0] *12
 
@@ -174,41 +174,57 @@ class JamalController:
                         
                         self.pcan_bus.clean()
                         break
-                else:
-                    # Send the command    
-                    try:
-                        feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
-                                                                    pos=motor.adjust_position(position), 
-                                                                    v_in=0,
-                                                                    t_in=0,
-                                                                    kp_in=0,
-                                                                    kd_in=0)
+
+                    if feedback is None:
+                        print(f"Motor {motor.name} did not respond.")
+
+                        # TO-DO: Handle this case properly
+                        self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
+                        self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                        self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
+                        self.joint_names.append(motor.name)
                         
-                    except KeyboardInterrupt:
-                        print("\nDisabling motor and exiting...")
+                        continue
+                    else:
+                        self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
+                        self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                        self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
+                        self.joint_names.append(motor.name)
+                # else:
+                #     # Send the command    
+                #     try:
+                #         feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
+                #                                                     pos=motor.adjust_position(position), 
+                #                                                     v_in=0,
+                #                                                     t_in=0,
+                #                                                     kp_in=0,
+                #                                                     kd_in=0)
                         
-                        for id in MOTOR_IDS.values():
-                            self.pcan_bus.disable_motor_mode(motor_id=id)
+                #     except KeyboardInterrupt:
+                #         print("\nDisabling motor and exiting...")
                         
-                        self.pcan_bus.clean()
-                        break
+                #         for id in MOTOR_IDS.values():
+                #             self.pcan_bus.disable_motor_mode(motor_id=id)
+                        
+                #         self.pcan_bus.clean()
+                #         break
 
                 # Save the feedback
-                if feedback is None:
-                    print(f"Motor {motor.name} did not respond.")
+                # if feedback is None:
+                #     print(f"Motor {motor.name} did not respond.")
 
-                    # TO-DO: Handle this case properly
-                    self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                    self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                    self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                    self.joint_names.append(motor.name)
+                #     # TO-DO: Handle this case properly
+                #     self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
+                #     self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                #     self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
+                #     self.joint_names.append(motor.name)
                     
-                    continue
-                else:
-                    self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                    self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                    self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                    self.joint_names.append(motor.name)
+                #     continue
+                # else:
+                #     self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
+                #     self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                #     self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
+                #     self.joint_names.append(motor.name)
 
     def publish_joint_feedback(self):
         msg = JointState()
