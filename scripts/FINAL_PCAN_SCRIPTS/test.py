@@ -1,3 +1,5 @@
-joint_commands["positions"] == [0]*12
-while(joint_commands["positions"] == [0]*12):
-    print("no controller runing")
+position = -0.001
+if position!=0:
+    print("not zero")
+else:
+    print("zero")
