@@ -16,6 +16,7 @@ MOTOR_IDS = {
              }
 
 
+
 #lower leg limit to -55
 # Min, Max and offset values in degrees 
 # These offsets are for robot hanging on test bench with legs close

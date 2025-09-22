@@ -82,6 +82,14 @@ class JamalController:
                                        max_torque=T_MAX,
                                        min_velocity=V_MIN,
                                        max_velocity=V_MAX)
+            
+
+        # make reverse mapping (ID → name)
+        self.ID_TO_NAME = {v: k for k, v in MOTOR_IDS.items()}
+
+        # example usage
+        # print(ID_TO_NAME[4])   # → 'RF_HAA'
+        # print(ID_TO_NAME[10])   # → 'LH_KFE'
 
         # Jamal Motor Control Node
 
@@ -178,7 +186,7 @@ class JamalController:
                     # print("if condition")
                     if position > motor.min_position and position < motor.max_position:
                         try:
-                            feedback = {"position":[], "velocity":[], "torque":[]}
+                            feedback = {"position":[], "velocity":[], "torque":[], 'id': []}
                             feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
                                                                         pos=motor.adjust_position(position), 
                                                                         v_in=motor.adjust_velocity(velocity),
@@ -189,12 +197,13 @@ class JamalController:
                             self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
                             self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
                             self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                            self.joint_states['names'].append(motor.name)
-                            self.joint_states['id'].append(motor.id)
+                            # self.joint_states['names'].append(motor.name)
+                            self.joint_states['names'].append(self.ID_TO_NAME[(feedback['id'])])
+                            self.joint_states['id'].append((feedback['id']))
                             # self.joint_names.append(motor.name)
-                            # print(self.joint_states['id'])
-                            # print(self.joint_states['names'])
-                            # print(self.joint_states['positions'])
+                            print(self.joint_states['id'])
+                            print(self.joint_states['names'])
+                            print(self.joint_states['positions'])
                             
                         except KeyboardInterrupt:
                             print("\nDisabling motor and exiting...")
@@ -209,7 +218,7 @@ class JamalController:
                     # Send the command    
                         try:
                             # print("else condition")
-                            feedback = {"position":[], "velocity":[], "torque":[]}
+                            feedback = {"position":[], "velocity":[], "torque":[], 'id': []}
                             feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
                                                                         pos=motor.adjust_position(position), 
                                                                         v_in=0,
@@ -220,12 +229,13 @@ class JamalController:
                             self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
                             self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
                             self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                            self.joint_states['names'].append(motor.name)
-                            self.joint_states['id'].append(motor.id)
+                            # self.joint_states['names'].append(motor.name)
+                            self.joint_states['names'].append(self.ID_TO_NAME[(feedback['id'])])
+                            self.joint_states['id'].append((feedback['id']))
                             # self.joint_names.append(motor.name)
-                            # print(self.joint_states['id'])
-                            # print(self.joint_states['names'])
-                            # print(self.joint_states['positions'])
+                            print(self.joint_states['id'])
+                            print(self.joint_states['names'])
+                            print(self.joint_states['positions'])
                             
                         except KeyboardInterrupt:
                             print("\nDisabling motor and exiting...")
@@ -240,7 +250,7 @@ class JamalController:
                     # Send the command    
                     try:
                         # print("else condition")
-                        feedback = {"position":[], "velocity":[], "torque":[]}
+                        feedback = {"position":[], "velocity":[], "torque":[], 'id': []}
                         feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
                                                                     pos=motor.adjust_position(position), 
                                                                     v_in=0,
@@ -251,12 +261,13 @@ class JamalController:
                         self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
                         self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
                         self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                        self.joint_states['names'].append(motor.name)
-                        self.joint_states['id'].append(motor.id)
+                        # self.joint_states['names'].append(motor.name)
+                        self.joint_states['names'].append(self.ID_TO_NAME[(feedback['id'])])
+                        self.joint_states['id'].append((feedback['id']))
                         # self.joint_names.append(motor.name)
-                        # print(self.joint_states['id'])
-                        # print(self.joint_states['names'])
-                        # print(self.joint_states['positions'])
+                        print(self.joint_states['id'])
+                        print(self.joint_states['names'])
+                        print(self.joint_states['positions'])
                         
                     except KeyboardInterrupt:
                         print("\nDisabling motor and exiting...")

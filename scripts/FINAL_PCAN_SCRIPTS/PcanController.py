@@ -79,6 +79,7 @@ class PcanController:
 
     def receive_can_msg(self, motor_id=None):
         result, msg, timestamp = self.pcan.Read(self.channel)
+        # print(msg.ID)
         if result == PCAN_ERROR_OK:
             buf = list(msg.DATA)
             p_int = (buf[1] << 8) | buf[2]
@@ -88,7 +89,7 @@ class PcanController:
             v_out = self.uint_to_float(v_int, V_MIN, V_MAX, 12)
             t_out = self.uint_to_float(t_int, -T_MAX, T_MAX, 12)
 
-            feedback = {'position': p_out, 'velocity': v_out, 'torque': t_out}
+            feedback = {'position': p_out, 'velocity': v_out, 'torque': t_out, 'id': msg.ID}
             if motor_id is not None:
                 self.last_feedback[motor_id] = feedback  # update last known values
             return feedback
@@ -97,7 +98,7 @@ class PcanController:
             if motor_id is not None and motor_id in self.last_feedback:
                 return self.last_feedback[motor_id]  # return last known values
             else:
-                return {'position': 0.0, 'velocity': 0.0, 'torque': 0.0}
+                return {'position': 0.0, 'velocity': 0.0, 'torque': 0.0, 'id': msg.ID}
 
 
         
