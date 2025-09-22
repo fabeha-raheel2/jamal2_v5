@@ -54,16 +54,17 @@ class Motor:
 
 class JamalController:
     def __init__(self, publish_feedback=True, debug=True):
+        
         self._debug = debug
 
         self.pcan_bus = PcanController()
 
         self.publish_joint_state = publish_feedback
 
-        self.joint_states = {"positions":[], "velocities":[], "torques":[]} # feedback that is received from motors
+        self.joint_states = {"positions":[], "velocities":[], "torques":[], "names":[]} # feedback that is received from motors
         self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[], "kd":[]} # the commands that have to be sent to the motors
         
-        self.joint_names = JOINT_NAMES
+        # self.joint_names = JOINT_NAMES
 
         self.motors = MOTOR_IDS.copy()
 
@@ -89,7 +90,8 @@ class JamalController:
         self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', JointTrajectory, self.controller_callback)
         
         if self.publish_joint_state:
-            self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
+            # self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
+            self.joint_state_publisher = rospy.Publisher('/motor_states', JointState, queue_size=1)
 
         self.pcan_bus.initialize()
 
@@ -105,7 +107,8 @@ class JamalController:
                         self.pcan_bus.enable_motor_mode(motor_id=motor.id)
                         # self.pcan_bus.send_position(motor_id=motor.id, pos=0)
                         self.feedback_positions.append(motor.readjust_position(pos=0))
-                        self.joint_names.append(motor.name)
+                        # self.joint_names.append(motor.name)
+                        self.joint_states['names'].append(motor.name)
                         print(motor.name)
             # else:
             #     self.feedback_positions.append(motor.readjust_position(pos=0))
@@ -115,7 +118,8 @@ class JamalController:
                 msg = JointState()
 
                 msg.header.stamp = rospy.Time.now()
-                msg.name = self.joint_names
+                # msg.name = self.joint_names
+                msg.name = self.joint_states['names']
                 msg.position = self.feedback_positions
 
                 self.joint_state_publisher.publish(msg)
@@ -153,17 +157,28 @@ class JamalController:
             if self.publish_joint_state:
                 self.publish_joint_feedback()
             
+            
     def send_motor_commands(self):
-        self.joint_states = {"positions":[], "velocities":[], "torques":[]}
+        self.joint_states = {"positions":[], "velocities":[], "torques":[], "names":[], "id":[]}
         self.joint_names = []
 
-        if len(self.joint_commands["positions"]) != 0:
 
+        # print(len(self.joint_commands["positions"]))
+        # print(len(self.joint_commands["velocities"]))
+        # print(len(self.joint_commands["torques"]))
+        # print(len(self.joint_commands["kp"]))
+        # print(len(self.joint_commands["kd"]))
+        # if len(self.joint_commands["positions"]) != 0 and len(self.joint_commands["velocities"]) != 0 and len(self.joint_commands["torques"]) != 0 and len(self.joint_commands["kp"]) != 0 and len(self.joint_commands["kd"]) != 0:
+        if len(self.joint_commands["positions"]) == 12 and len(self.joint_commands["velocities"]) == 12 and len(self.joint_commands["torques"]) == 12 and len(self.joint_commands["kp"]) == 12 and len(self.joint_commands["kd"]) == 12:
+            # print("loop started")
+            # print(self.joint_states['names'])
+            # print(self.joint_states)
             for motor, position, velocity, torque, kp, kd in zip(self.motors.values(), self.joint_commands["positions"], self.joint_commands["velocities"], self.joint_commands["torques"], self.joint_commands["kp"], self.joint_commands["kd"]):
                 if position != 0:
-                    print("controller running")
+                    # print("if condition")
                     if position > motor.min_position and position < motor.max_position:
                         try:
+                            feedback = {"position":[], "velocity":[], "torque":[]}
                             feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
                                                                         pos=motor.adjust_position(position), 
                                                                         v_in=motor.adjust_velocity(velocity),
@@ -174,7 +189,43 @@ class JamalController:
                             self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
                             self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
                             self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                            self.joint_names.append(motor.name)
+                            self.joint_states['names'].append(motor.name)
+                            self.joint_states['id'].append(motor.id)
+                            # self.joint_names.append(motor.name)
+                            # print(self.joint_states['id'])
+                            # print(self.joint_states['names'])
+                            # print(self.joint_states['positions'])
+                            
+                        except KeyboardInterrupt:
+                            print("\nDisabling motor and exiting...")
+                            
+                            for id in MOTOR_IDS.values():
+                                self.pcan_bus.disable_motor_mode(motor_id=id)
+                            
+                            self.pcan_bus.clean()
+                            break
+
+                    else:
+                    # Send the command    
+                        try:
+                            # print("else condition")
+                            feedback = {"position":[], "velocity":[], "torque":[]}
+                            feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
+                                                                        pos=motor.adjust_position(position), 
+                                                                        v_in=0,
+                                                                        t_in=0,
+                                                                        kp_in=0,
+                                                                        kd_in=0)
+                            
+                            self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
+                            self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                            self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
+                            self.joint_states['names'].append(motor.name)
+                            self.joint_states['id'].append(motor.id)
+                            # self.joint_names.append(motor.name)
+                            # print(self.joint_states['id'])
+                            # print(self.joint_states['names'])
+                            # print(self.joint_states['positions'])
                             
                         except KeyboardInterrupt:
                             print("\nDisabling motor and exiting...")
@@ -188,7 +239,8 @@ class JamalController:
                 else:
                     # Send the command    
                     try:
-                        print("trying")
+                        # print("else condition")
+                        feedback = {"position":[], "velocity":[], "torque":[]}
                         feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
                                                                     pos=motor.adjust_position(position), 
                                                                     v_in=0,
@@ -199,7 +251,12 @@ class JamalController:
                         self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
                         self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
                         self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                        self.joint_names.append(motor.name)
+                        self.joint_states['names'].append(motor.name)
+                        self.joint_states['id'].append(motor.id)
+                        # self.joint_names.append(motor.name)
+                        # print(self.joint_states['id'])
+                        # print(self.joint_states['names'])
+                        # print(self.joint_states['positions'])
                         
                     except KeyboardInterrupt:
                         print("\nDisabling motor and exiting...")
@@ -210,33 +267,13 @@ class JamalController:
                         self.pcan_bus.clean()
                         break
 
-                # Save the feedback
-                # if feedback is None:
-                #     print(f"Motor {motor.name} did not respond.")
-
-                #     # TO-DO: Handle this case properly
-                #     self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                #     self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                #     self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                #     self.joint_names.append(motor.name)
-                    
-                #     continue
-                # else:
-                #     self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                #     self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                #     self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                #     self.joint_names.append(motor.name)
-
-                # self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                # self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                # self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                # self.joint_names.append(motor.name)
-
+            # print("loop ended")
     def publish_joint_feedback(self):
         msg = JointState()
 
         msg.header.stamp = rospy.Time.now()
-        msg.name = self.joint_names
+        # msg.name = self.joint_names
+        msg.name = self.joint_states['names']
         msg.position = self.joint_states['positions']
         msg.velocity = self.joint_states['velocities']
         msg.effort = self.joint_states['torques']
