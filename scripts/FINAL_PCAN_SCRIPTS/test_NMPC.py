@@ -31,19 +31,23 @@ class Motor:
     def constrain(self, val, min_val, max_val):
         return max(min_val, min(val, max_val))
     
-    def readjust_position(self, pos):
+    def readjust_position(self, pos, name, motors):
+        self.multiplier = motors[name].multiplier
+        self.offset = motors[name].offset
         return (pos / self.multiplier) + self.offset
     
     def adjust_torque(self, torque):
         return self.multiplier * self.constrain(val=round(torque, 3), min_val=self.min_torque, max_val=self.max_torque) 
     
-    def readjust_torque(self, torque):
+    def readjust_torque(self, torque, name, motors):
+        self.multiplier = motors[name].multiplier
         return (torque / self.multiplier)
     
     def adjust_velocity(self, velocity):
         return self.multiplier * self.constrain(val=round(velocity, 3), min_val=self.min_velocity, max_val=self.max_velocity) 
     
-    def readjust_velocity(self, velocity):
+    def readjust_velocity(self, velocity, name, motors):
+        self.multiplier = motors[name].multiplier
         return (velocity / self.multiplier)
     
     def __str__(self):
@@ -85,11 +89,11 @@ class JamalController:
             
 
         # make reverse mapping (ID → name)
-        ID_TO_NAME = {v: k for k, v in MOTOR_IDS.items()}
+        self.ID_TO_NAME = {v: k for k, v in MOTOR_IDS.items()}
 
         # example usage
-        print(ID_TO_NAME[4])   # → 'RF_HAA'
-        print(ID_TO_NAME[10])   # → 'LH_KFE'
+        # print(ID_TO_NAME[4])   # → 'RF_HAA'
+        # print(self.ID_TO_NAME[10])   # → 'LH_KFE'
 
         # Jamal Motor Control Node
 
@@ -114,7 +118,7 @@ class JamalController:
                         self.pcan_bus.set_motor_origin(motor_id=motor.id)
                         self.pcan_bus.enable_motor_mode(motor_id=motor.id)
                         # self.pcan_bus.send_position(motor_id=motor.id, pos=0)
-                        self.feedback_positions.append(motor.readjust_position(pos=0))
+                        self.feedback_positions.append(motor.readjust_position(pos=0, name = motor.name, motors=self.motors))
                         # self.joint_names.append(motor.name)
                         self.joint_states['names'].append(motor.name)
                         print(motor.name)
@@ -131,9 +135,6 @@ class JamalController:
                 msg.position = self.feedback_positions
 
                 self.joint_state_publisher.publish(msg)
-        # user_input = input("Run Motors?")
-        # if user_input == "y" or user_input == "Y":
-        #     print("Motors are running now")
 
     def controller_callback(self, msg):
         self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[], "kd":[]}
@@ -169,13 +170,15 @@ class JamalController:
     def send_motor_commands(self):
         self.joint_states = {"positions":[], "velocities":[], "torques":[], "names":[], "id":[]}
         self.joint_names = []
+        n_joints = len(MOTOR_INDEX)
+        self.joint_states = {
+            "positions": [0.0] * n_joints,
+            "velocities": [0.0] * n_joints,
+            "torques":   [0.0] * n_joints,
+            "names":     [""]  * n_joints,
+            "id":        [0]   * n_joints,
+        }
 
-
-        # print(len(self.joint_commands["positions"]))
-        # print(len(self.joint_commands["velocities"]))
-        # print(len(self.joint_commands["torques"]))
-        # print(len(self.joint_commands["kp"]))
-        # print(len(self.joint_commands["kd"]))
         # if len(self.joint_commands["positions"]) != 0 and len(self.joint_commands["velocities"]) != 0 and len(self.joint_commands["torques"]) != 0 and len(self.joint_commands["kp"]) != 0 and len(self.joint_commands["kd"]) != 0:
         if len(self.joint_commands["positions"]) == 12 and len(self.joint_commands["velocities"]) == 12 and len(self.joint_commands["torques"]) == 12 and len(self.joint_commands["kp"]) == 12 and len(self.joint_commands["kd"]) == 12:
             # print("loop started")
@@ -194,15 +197,26 @@ class JamalController:
                                                                         kp_in=kp,
                                                                         kd_in=kd)
                             
-                            self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                            self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                            self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                            self.joint_states['names'].append(motor.name)
-                            self.joint_states['id'].append((feedback['id']))
+                            # name = self.ID_TO_NAME.get(feedback['id'], f"unknown_{feedback['id']}")
+                            name = self.ID_TO_NAME.get(feedback['id'])
+                            idx = MOTOR_INDEX[name]
+                            self.joint_states['positions'][idx]  = motor.readjust_position(pos = feedback['position'], name = name, motors=self.motors)
+                            self.joint_states['velocities'][idx] = motor.readjust_velocity(velocity = feedback['velocity'], name = name, motors=self.motors)
+                            self.joint_states['torques'][idx]    = motor.readjust_torque(torque = feedback['torque'], name = name, motors=self.motors)
+                            self.joint_states['names'][idx]      = name
+                            self.joint_states['id'][idx]         = feedback['id']
+
+                            # self.joint_states['positions'][idx].append(motor.readjust_position(feedback['position']))
+                            # self.joint_states['velocities'][idx].append(motor.readjust_velocity(feedback['velocity']))
+                            # self.joint_states['torques'][idx].append(motor.readjust_torque(feedback['torque']))
+                            # # self.joint_states['names'].append(motor.name)
+                            # self.joint_states['names'][idx].append(name)
+                            # self.joint_states['id'][idx].append((feedback['id']))
                             # self.joint_names.append(motor.name)
                             print(self.joint_states['id'])
                             print(self.joint_states['names'])
                             print(self.joint_states['positions'])
+                            
                             
                         except KeyboardInterrupt:
                             print("\nDisabling motor and exiting...")
@@ -225,11 +239,21 @@ class JamalController:
                                                                         kp_in=0,
                                                                         kd_in=0)
                             
-                            self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                            self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                            self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                            self.joint_states['names'].append(motor.name)
-                            self.joint_states['id'].append((feedback['id']))
+                            # name = self.ID_TO_NAME.get(feedback['id'], f"unknown_{feedback['id']}")
+                            name = self.ID_TO_NAME.get(feedback['id'])
+                            idx = MOTOR_INDEX[name]
+                            self.joint_states['positions'][idx]  = motor.readjust_position(pos = feedback['position'], name = name, motors=self.motors)
+                            self.joint_states['velocities'][idx] = motor.readjust_velocity(velocity = feedback['velocity'], name = name, motors=self.motors)
+                            self.joint_states['torques'][idx]    = motor.readjust_torque(torque = feedback['torque'], name = name, motors=self.motors)
+                            self.joint_states['names'][idx]      = name
+                            self.joint_states['id'][idx]         = feedback['id']
+
+                            # self.joint_states['positions'][idx].append(motor.readjust_position(feedback['position']))
+                            # self.joint_states['velocities'][idx].append(motor.readjust_velocity(feedback['velocity']))
+                            # self.joint_states['torques'][idx].append(motor.readjust_torque(feedback['torque']))
+                            # # self.joint_states['names'].append(motor.name)
+                            # self.joint_states['names'][idx].append(name)
+                            # self.joint_states['id'][idx].append((feedback['id']))
                             # self.joint_names.append(motor.name)
                             print(self.joint_states['id'])
                             print(self.joint_states['names'])
@@ -256,11 +280,21 @@ class JamalController:
                                                                     kp_in=0,
                                                                     kd_in=0)
                         
-                        self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                        self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                        self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                        self.joint_states['names'].append(motor.name)
-                        self.joint_states['id'].append((feedback['id']))
+                        # name = self.ID_TO_NAME.get(feedback['id'], f"unknown_{feedback['id']}")
+                        name = self.ID_TO_NAME.get(feedback['id'])
+                        idx = MOTOR_INDEX[name]
+                        self.joint_states['positions'][idx]  = motor.readjust_position(pos = feedback['position'], name = name, motors=self.motors)
+                        self.joint_states['velocities'][idx] = motor.readjust_velocity(velocity = feedback['velocity'], name = name, motors=self.motors)
+                        self.joint_states['torques'][idx]    = motor.readjust_torque(torque = feedback['torque'], name = name, motors=self.motors)
+                        self.joint_states['names'][idx]      = name
+                        self.joint_states['id'][idx]         = feedback['id']
+                        
+                        # self.joint_states['positions'][idx].append(motor.readjust_position(feedback['position']))
+                        # self.joint_states['velocities'][idx].append(motor.readjust_velocity(feedback['velocity']))
+                        # self.joint_states['torques'][idx].append(motor.readjust_torque(feedback['torque']))
+                        # # self.joint_states['names'].append(motor.name)
+                        # self.joint_states['names'][idx].append(name)
+                        # self.joint_states['id'][idx].append((feedback['id']))
                         # self.joint_names.append(motor.name)
                         print(self.joint_states['id'])
                         print(self.joint_states['names'])
@@ -293,4 +327,4 @@ class JamalController:
 if __name__ == "__main__":
     quadruped_controller = JamalController()
     # rospy.spin()
-    # quadruped_controller.run_loop()
+    quadruped_controller.run_loop()

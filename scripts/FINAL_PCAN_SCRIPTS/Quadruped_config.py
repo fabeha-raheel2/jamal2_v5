@@ -15,6 +15,12 @@ MOTOR_IDS = {
     'LH_HAA':0x07, 'LH_HFE':0x08, 'LH_KFE':0x09    # Left Hind
              }
 
+MOTOR_INDEX = {
+    'RF_HAA':0, 'RF_HFE':1, 'RF_KFE':2,   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
+    'LF_HAA':3, 'LF_HFE':4, 'LF_KFE':5,   # Left Front
+    'RH_HAA':6, 'RH_HFE':7, 'RH_KFE':8,   # Right Hind
+    'LH_HAA':9, 'LH_HFE':10, 'LH_KFE':11    # Left Hind
+             }
 
 
 #lower leg limit to -55
