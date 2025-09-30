@@ -183,87 +183,87 @@ class JamalController:
             for motor, position, velocity, torque, kp, kd in zip(self.motors.values(), self.joint_commands["positions"], self.joint_commands["velocities"], self.joint_commands["torques"], self.joint_commands["kp"], self.joint_commands["kd"]):
                 if position != 0:
                     # print("if condition")
-                    if position > motor.min_position and position < motor.max_position:
-                        try:
-                            feedback = {"position":[], "velocity":[], "torque":[], 'id': []}
-                            feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
-                                                                        pos=motor.adjust_position(position), 
-                                                                        v_in=motor.adjust_velocity(velocity),
-                                                                        t_in=motor.adjust_torque(torque),
-                                                                        kp_in=kp,
-                                                                        kd_in=kd)
-                            
-                            # name = self.ID_TO_NAME.get(feedback['id'], f"unknown_{feedback['id']}")
-                            # name = self.ID_TO_NAME.get(feedback['id'])
-                            # idx = MOTOR_INDEX[name]
-                            # self.joint_states['positions'][idx]  = motor.readjust_position(pos = feedback['position'], name = name, motors=self.motors)
-                            # self.joint_states['velocities'][idx] = motor.readjust_velocity(velocity = feedback['velocity'], name = name, motors=self.motors)
-                            # self.joint_states['torques'][idx]    = motor.readjust_torque(torque = feedback['torque'], name = name, motors=self.motors)
-                            # self.joint_states['names'][idx]      = name
-                            # self.joint_states['id'][idx]         = feedback['id']
+                    # if position > motor.min_position and position < motor.max_position:
+                    try:
+                        feedback = {"position":[], "velocity":[], "torque":[], 'id': []}
+                        feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
+                                                                    pos=motor.adjust_position(position), 
+                                                                    v_in=motor.adjust_velocity(velocity),
+                                                                    t_in=motor.adjust_torque(torque),
+                                                                    kp_in=kp,
+                                                                    kd_in=kd)
+                        
+                        # name = self.ID_TO_NAME.get(feedback['id'], f"unknown_{feedback['id']}")
+                        # name = self.ID_TO_NAME.get(feedback['id'])
+                        # idx = MOTOR_INDEX[name]
+                        # self.joint_states['positions'][idx]  = motor.readjust_position(pos = feedback['position'], name = name, motors=self.motors)
+                        # self.joint_states['velocities'][idx] = motor.readjust_velocity(velocity = feedback['velocity'], name = name, motors=self.motors)
+                        # self.joint_states['torques'][idx]    = motor.readjust_torque(torque = feedback['torque'], name = name, motors=self.motors)
+                        # self.joint_states['names'][idx]      = name
+                        # self.joint_states['id'][idx]         = feedback['id']
 
-                            self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                            self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                            self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                            self.joint_states['names'].append(motor.name)
-                            # self.joint_states['names'].append(name)
-                            self.joint_states['id'].append((feedback['id']))
-                            # self.joint_names.append(motor.name)
-                            print(self.joint_states['id'])
-                            print(self.joint_states['names'])
-                            print(self.joint_states['positions'])
-                            
-                            
-                        except KeyboardInterrupt:
-                            print("\nDisabling motor and exiting...")
-                            
-                            for id in MOTOR_IDS.values():
-                                self.pcan_bus.disable_motor_mode(motor_id=id)
-                            
-                            self.pcan_bus.clean()
-                            break
+                        self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
+                        self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                        self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
+                        self.joint_states['names'].append(motor.name)
+                        # self.joint_states['names'].append(name)
+                        self.joint_states['id'].append((feedback['id']))
+                        # self.joint_names.append(motor.name)
+                        print(self.joint_states['id'])
+                        print(self.joint_states['names'])
+                        print(self.joint_states['positions'])
+                        
+                        
+                    except KeyboardInterrupt:
+                        print("\nDisabling motor and exiting...")
+                        
+                        for id in MOTOR_IDS.values():
+                            self.pcan_bus.disable_motor_mode(motor_id=id)
+                        
+                        self.pcan_bus.clean()
+                        break
 
-                    else:
-                    # Send the command    
-                        try:
-                            # print("else condition")
-                            feedback = {"position":[], "velocity":[], "torque":[], 'id': []}
-                            feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
-                                                                        pos=motor.adjust_position(position), 
-                                                                        v_in=0,
-                                                                        t_in=0,
-                                                                        kp_in=0,
-                                                                        kd_in=0)
+                    # else:
+                    # # Send the command    
+                    #     try:
+                    #         # print("else condition")
+                    #         feedback = {"position":[], "velocity":[], "torque":[], 'id': []}
+                    #         feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
+                    #                                                     pos=motor.adjust_position(position), 
+                    #                                                     v_in=0,
+                    #                                                     t_in=0,
+                    #                                                     kp_in=0,
+                    #                                                     kd_in=0)
                             
-                            # name = self.ID_TO_NAME.get(feedback['id'], f"unknown_{feedback['id']}")
-                            # name = self.ID_TO_NAME.get(feedback['id'])
-                            # idx = MOTOR_INDEX[name]
-                            # self.joint_states['positions'][idx]  = motor.readjust_position(pos = feedback['position'], name = name, motors=self.motors)
-                            # self.joint_states['velocities'][idx] = motor.readjust_velocity(velocity = feedback['velocity'], name = name, motors=self.motors)
-                            # self.joint_states['torques'][idx]    = motor.readjust_torque(torque = feedback['torque'], name = name, motors=self.motors)
-                            # self.joint_states['names'][idx]      = name
-                            # self.joint_states['id'][idx]         = feedback['id']
+                    #         # name = self.ID_TO_NAME.get(feedback['id'], f"unknown_{feedback['id']}")
+                    #         # name = self.ID_TO_NAME.get(feedback['id'])
+                    #         # idx = MOTOR_INDEX[name]
+                    #         # self.joint_states['positions'][idx]  = motor.readjust_position(pos = feedback['position'], name = name, motors=self.motors)
+                    #         # self.joint_states['velocities'][idx] = motor.readjust_velocity(velocity = feedback['velocity'], name = name, motors=self.motors)
+                    #         # self.joint_states['torques'][idx]    = motor.readjust_torque(torque = feedback['torque'], name = name, motors=self.motors)
+                    #         # self.joint_states['names'][idx]      = name
+                    #         # self.joint_states['id'][idx]         = feedback['id']
 
-                            self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
-                            self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
-                            self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
-                            self.joint_states['names'].append(motor.name)
-                            # self.joint_states['names'].append(name)
-                            self.joint_states['id'].append((feedback['id']))
-                            # self.joint_names.append(motor.name)
-                            print(self.joint_states['id'])
-                            print(self.joint_states['names'])
-                            print(self.joint_states['positions'])
+                    #         self.joint_states['positions'].append(motor.readjust_position(feedback['position']))
+                    #         self.joint_states['velocities'].append(motor.readjust_velocity(feedback['velocity']))
+                    #         self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
+                    #         self.joint_states['names'].append(motor.name)
+                    #         # self.joint_states['names'].append(name)
+                    #         self.joint_states['id'].append((feedback['id']))
+                    #         # self.joint_names.append(motor.name)
+                    #         print(self.joint_states['id'])
+                    #         print(self.joint_states['names'])
+                    #         print(self.joint_states['positions'])
                             
                             
-                        except KeyboardInterrupt:
-                            print("\nDisabling motor and exiting...")
+                    #     except KeyboardInterrupt:
+                    #         print("\nDisabling motor and exiting...")
                             
-                            for id in MOTOR_IDS.values():
-                                self.pcan_bus.disable_motor_mode(motor_id=id)
+                    #         for id in MOTOR_IDS.values():
+                    #             self.pcan_bus.disable_motor_mode(motor_id=id)
                             
-                            self.pcan_bus.clean()
-                            break
+                    #         self.pcan_bus.clean()
+                    #         break
 
                 else:
                     # Send the command    
