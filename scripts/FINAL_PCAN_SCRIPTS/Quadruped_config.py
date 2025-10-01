@@ -7,13 +7,20 @@ JOINT_NAMES = [
 ]
 
 
-# Motor IDs 
+# Motor IDs for INWARD BEND CONFIGURATION
 MOTOR_IDS = {
     'RF_HAA':0x04, 'RF_HFE':0x05, 'RF_KFE':0x06,   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
     'LF_HAA':0x01, 'LF_HFE':0x02, 'LF_KFE':0x03,   # Left Front
-    'RH_HAA':0x0A, 'RH_HFE':0x0B, 'RH_KFE':0x0C,   # Right Hind
-    'LH_HAA':0x07, 'LH_HFE':0x08, 'LH_KFE':0x09    # Left Hind
+    'RH_HAA':0x0A, 'RH_HFE':0x08, 'RH_KFE':0x09,   # Right Hind
+    'LH_HAA':0x07, 'LH_HFE':0x0B, 'LH_KFE':0x0C    # Left Hind
              }
+# Motor IDs 
+# MOTOR_IDS = {
+#     'RF_HAA':0x04, 'RF_HFE':0x05, 'RF_KFE':0x06,   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
+#     'LF_HAA':0x01, 'LF_HFE':0x02, 'LF_KFE':0x03,   # Left Front
+#     'RH_HAA':0x0A, 'RH_HFE':0x0B, 'RH_KFE':0x0C,   # Right Hind
+#     'LH_HAA':0x07, 'LH_HFE':0x08, 'LH_KFE':0x09    # Left Hind
+#              }
 
 MOTOR_INDEX = {
     'RF_HAA':0, 'RF_HFE':1, 'RF_KFE':2,   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
@@ -34,11 +41,19 @@ MOTOR_INDEX = {
 #              }
 
 # These offesets are for robot lying on the ground with legs close
+# MOTOR_MIN_MAX_OFFSET_MULT  = {
+#     'RF_HAA':(-25, 15, -23, -1), 'RF_HFE':(-20, 90, 67, 1), 'RF_KFE':(-153, -55, -153, -0.88),   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
+#     'LF_HAA':(-15, 25, 23, -1), 'LF_HFE':(-20, 90, 67, -1), 'LF_KFE':(-153, -55, -153, 0.88),   # Left Front
+#     'RH_HAA':(-25, 15, -23, 1), 'RH_HFE':(-20, 90, 67, 1), 'RH_KFE':(-153, -55, -153, -0.88),   # Right Hind
+#     'LH_HAA':(-15, 25, 23, 1), 'LH_HFE':(-20, 90, 67, -1), 'LH_KFE':(-153, -55, -153, 0.88)    # Left Hind
+#              }
+
+# These offesets are for INWARD BEND robot lying on the ground with legs close
 MOTOR_MIN_MAX_OFFSET_MULT  = {
     'RF_HAA':(-25, 15, -23, -1), 'RF_HFE':(-20, 90, 67, 1), 'RF_KFE':(-153, -55, -153, -0.88),   # Right Front: Hip Abduction/Adduction, Hip Flexion/Extension, Knee Flexion/Extension
     'LF_HAA':(-15, 25, 23, -1), 'LF_HFE':(-20, 90, 67, -1), 'LF_KFE':(-153, -55, -153, 0.88),   # Left Front
-    'RH_HAA':(-25, 15, -23, 1), 'RH_HFE':(-20, 90, 67, 1), 'RH_KFE':(-153, -55, -153, -0.88),   # Right Hind
-    'LH_HAA':(-15, 25, 23, 1), 'LH_HFE':(-20, 90, 67, -1), 'LH_KFE':(-153, -55, -153, 0.88)    # Left Hind
+    'RH_HAA':(-25, 15, -23, 1), 'RH_HFE':(-90, 20, -67, 1), 'RH_KFE':( 55,   153, 153, -0.88),   # Right Hind
+    'LH_HAA':(-15, 25, 23, 1), 'LH_HFE':(-90, 20, -67, -1), 'LH_KFE':( 55,  153, 153, 0.88)    # Left Hind
              }
 
 
