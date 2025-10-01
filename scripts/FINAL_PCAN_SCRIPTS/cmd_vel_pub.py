@@ -31,6 +31,7 @@ def main():
     time.sleep(0.5)
     publish_vel(pub,lin_z=0.0)
     time.sleep(0.2)
+    
 
     
 
