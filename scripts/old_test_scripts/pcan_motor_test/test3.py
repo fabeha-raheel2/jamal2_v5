@@ -1,6 +1,7 @@
 from PCANBasic import *
 from ctypes import c_ubyte
 import time
+import math
 
 # Initialize PCAN
 pcan = PCANBasic()
@@ -12,6 +13,7 @@ pcan.SetValue(channel, PCAN_RECEIVE_EVENT, 0)
 # Motor mode commands
 MotorModeOn = [0xFF]*7 + [0xFC]
 MotorModeOff = [0xFF]*7 + [0xFD]
+MotorZero = [0xFF]*7 + [0xFE]
 
 # Value limits
 P_MIN, P_MAX = -12.5, 12.5
@@ -20,9 +22,10 @@ KP_MIN, KP_MAX = 1.0, 100.0
 KD_MIN, KD_MAX = 0.1, 5.0
 T_MIN, T_MAX = -144.0, 144.0
 I_MIN, I_MAX = -19.0, 19.0
+kt = 0.136
 
 # Default control values
-p_in, v_in, kp_in, kd_in, t_in = 0.0, 0.0, 0.0, 0.0, 10.0
+p_in, v_in, kp_in, kd_in, t_in = 0.0, 0.0, 30.0, 2.0, 0.0
 
 def float_to_uint(x, x_min, x_max, bits):
     span = x_max - x_min
@@ -42,6 +45,7 @@ def uint_to_float(x_int, x_min, x_max, bits):
         return x_int * span / 65535.0 + offset
     return 0.0
 
+
 def send_can_msg(data):
     msg = TPCANMsg()
     msg.ID = 0x06
@@ -49,6 +53,8 @@ def send_can_msg(data):
     msg.MSGTYPE = PCAN_MESSAGE_STANDARD
     msg.DATA = (c_ubyte * 8)(*data)
     pcan.Write(channel, msg)
+    # if result != PCAN_ERROR_OK:
+    #     print("Send Error:", result)
 
 def receive_can_msg():
     result, msg, timestamp = pcan.Read(channel)
@@ -56,13 +62,16 @@ def receive_can_msg():
         buf = list(msg.DATA)
         p_int = (buf[1] << 8) | buf[2]
         v_int = (buf[3] << 4) | (buf[4] >> 4)
-        t_int = ((buf[4] & 0xF) << 8) | buf[5]
+        c_int = ((buf[4] & 0xF) << 8) | buf[5]
         p_out = uint_to_float(p_int, P_MIN, P_MAX, 16)
         v_out = uint_to_float(v_int, V_MIN, V_MAX, 12)
-        t_out = uint_to_float(t_int, -T_MAX, T_MAX, 12)
-        print(f"Measured -> Pos: {p_out:.2f}, Vel: {v_out:.2f}, Trq: {t_out:.2f}")
+        c_out = uint_to_float(c_int, T_MIN, T_MAX, 12)
+        t_out = c_out/kt
+        temp  = buf[6]
+        print(f"Pos: {p_out:.2f}, Vel: {v_out:.1f}, Cur: {c_out:.2f}A, Tor: {t_out:.2f}Nm, Temp: {temp}°C")
     else:
         print("No response from actuator.")
+        pass
 
 def pack_cmd(p_in, v_in, kp_in, kd_in, t_in):
     p_des = max(min(p_in, P_MAX), P_MIN)
@@ -89,6 +98,14 @@ def pack_cmd(p_in, v_in, kp_in, kd_in, t_in):
     ]
     return buf
 
+while True:
+    send_can_msg(MotorZero)
+    time.sleep(0.1)
+    result, _, _ = pcan.Read(channel)
+    if result != PCAN_ERROR_QRCVEMPTY:
+        break
+print("Motor Zero set.")
+time.sleep(2)
 # Enable motor mode
 print("Enabling motor mode...")
 while True:
@@ -99,16 +116,10 @@ while True:
         break
 print("Motor mode enabled.")
 
+
 # User input loop
 try:
     while True:
-        # try:
-        #     # p_in = float(input("Enter desired position (p_in): "))
-        #     # t_in = float(input("Enter desired torque (t_in): "))
-        # except ValueError:
-        #     print("Invalid input. Try again.")
-        #     continue
-
         can_data = pack_cmd(p_in, v_in, kp_in, kd_in, t_in)
         send_can_msg(can_data)
         time.sleep(0.01)

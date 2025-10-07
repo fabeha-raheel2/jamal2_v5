@@ -1,6 +1,7 @@
 from PCANBasic import *
 from ctypes import c_ubyte
 import time
+import math
 
 # Initialize PCAN
 pcan = PCANBasic()
@@ -12,6 +13,7 @@ pcan.SetValue(channel, PCAN_RECEIVE_EVENT, 0)
 # Motor mode commands
 MotorModeOn = [0xFF]*7 + [0xFC]
 MotorModeOff = [0xFF]*7 + [0xFD]
+MotorZero = [0xFF]*7 + [0xFE]
 
 # Value limits
 P_MIN, P_MAX = -12.5, 12.5
@@ -22,7 +24,7 @@ T_MIN, T_MAX = -144.0, 144.0
 I_MIN, I_MAX = -19.0, 19.0
 
 # Default control values
-p_in, v_in, kp_in, kd_in, t_in = 0.0, 0.0, 0.0, 0.0, 10.0
+p_in, v_in, kp_in, kd_in, t_in = 10.0, 2.0, 12.0, 2.0, 0.0
 
 def float_to_uint(x, x_min, x_max, bits):
     span = x_max - x_min
@@ -42,6 +44,15 @@ def uint_to_float(x_int, x_min, x_max, bits):
         return x_int * span / 65535.0 + offset
     return 0.0
 
+# def float_to_uint(x, x_min, x_max, bits):
+#     x = max(min(x, x_max), x_min)
+#     span = x_max - x_min
+#     return int((x - x_min) * ((1 << bits) / span))
+
+# def uint_to_float(x_int, x_min, x_max, bits):
+#     span = x_max - x_min
+#     return x_int * span / (1 << bits) + x_min
+
 def send_can_msg(data):
     msg = TPCANMsg()
     msg.ID = 0x06
@@ -49,6 +60,8 @@ def send_can_msg(data):
     msg.MSGTYPE = PCAN_MESSAGE_STANDARD
     msg.DATA = (c_ubyte * 8)(*data)
     pcan.Write(channel, msg)
+    # if result != PCAN_ERROR_OK:
+    #     print("Send Error:", result)
 
 def receive_can_msg():
     result, msg, timestamp = pcan.Read(channel)
@@ -59,10 +72,47 @@ def receive_can_msg():
         t_int = ((buf[4] & 0xF) << 8) | buf[5]
         p_out = uint_to_float(p_int, P_MIN, P_MAX, 16)
         v_out = uint_to_float(v_int, V_MIN, V_MAX, 12)
-        t_out = uint_to_float(t_int, -T_MAX, T_MAX, 12)
-        print(f"Measured -> Pos: {p_out:.2f}, Vel: {v_out:.2f}, Trq: {t_out:.2f}")
+        t_out = uint_to_float(t_int, T_MIN, T_MAX, 12)
+        # buf = list(msg.DATA)
+        # p_int = (buf[1] << 8) | buf[2]
+        # v_int = (buf[3] << 8) | buf[4]
+        # c_int = (buf[5] << 8) | buf[6]
+        # if p_int >= 0x8000:
+        #     p_int -= 0x10000
+        # if v_int >= 0x8000:
+        #     v_int -= 0x10000
+        # if c_int >= 0x8000:
+        #     c_int -= 0x10000
+
+        # p_out = (p_int)*0.1
+        # v_out = (v_int)*10
+        # c_out = (c_int)*0.01
+        temp  = buf[6]
+        # err   = buf[8]
+        # p_out = uint_to_float(p_int, P_MIN, P_MAX, 16)
+        # v_out = uint_to_float(v_int, V_MIN, V_MAX, 16)
+        # c_out = uint_to_float(c_int, I_MIN, I_MAX, 16)
+        # p_out = p_int * 0.1      # deg
+        # v_out = v_int * 10.0     # ERPM
+        # c_out = c_int * 0.01     # A
+        print(f"Pos: {p_out:.2f}, Vel: {v_out:.1f}, Cur: {t_out:.2f}A, Temp: {temp}°C")
     else:
-        print("No response from actuator.")
+        pass
+        # p_int = (buf[1] << 8) | buf[2]
+        # v_int = (buf[3] << 8) | buf[4]
+        # t_int = (buf[5] << 8) | buf[6]
+        # p_out = (p_int)
+        # v_out = (v_int)
+        # t_out = (t_int)
+        # p_out = p_int * 0.1
+        # v_out = v_int * 10.0
+        # t_out = t_int * 0.01
+        # p_out = uint_to_float(p_int, P_MIN, P_MAX, 16)
+        # v_out = uint_to_float(v_int, V_MIN, V_MAX, 16)
+        # t_out = uint_to_float(t_int, -I_MIN, I_MAX, 16)
+    #     print(f"Measured -> Pos: {p_out:.2f}, Vel: {v_out:.2f}, Trq: {t_out:.2f}")
+    # else:
+    #     print("No response from actuator.")
 
 def pack_cmd(p_in, v_in, kp_in, kd_in, t_in):
     p_des = max(min(p_in, P_MAX), P_MIN)
@@ -76,6 +126,16 @@ def pack_cmd(p_in, v_in, kp_in, kd_in, t_in):
     kp_int = float_to_uint(kp, KP_MIN, KP_MAX, 12)
     kd_int = float_to_uint(kd, KD_MIN, KD_MAX, 12)
     t_int = float_to_uint(t_ff, T_MIN, T_MAX, 12)
+    # buf = [
+    #     (kp_int >> 4) & 0xFF,
+    #     ((kp_int & 0xF) << 4) | ((kd_int >> 8) & 0xF),
+    #     kd_int & 0xFF,
+    #     (p_int >> 8) & 0xFF,
+    #     p_int & 0xFF,
+    #     (v_int >> 4) & 0xFF,
+    #     ((v_int & 0xF) << 4) | ((t_int >> 8) & 0xF),
+    #     t_int & 0xFF,
+    # ]
 
     buf = [
         (p_int >> 8) & 0xFF,
@@ -98,6 +158,13 @@ while True:
     if result != PCAN_ERROR_QRCVEMPTY:
         break
 print("Motor mode enabled.")
+while True:
+    send_can_msg(MotorZero)
+    time.sleep(0.1)
+    result, _, _ = pcan.Read(channel)
+    if result != PCAN_ERROR_QRCVEMPTY:
+        break
+print("Motor Zero set.")
 
 # User input loop
 try:

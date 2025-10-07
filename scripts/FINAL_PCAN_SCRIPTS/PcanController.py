@@ -88,7 +88,7 @@ class PcanController:
             t_int = ((buf[4] & 0xF) << 8) | buf[5]
             p_out = self.uint_to_float(p_int, P_MIN, P_MAX, 16)
             v_out = self.uint_to_float(v_int, V_MIN, V_MAX, 12)
-            t_out = self.uint_to_float(t_int, -T_MAX, T_MAX, 12)
+            t_out = self.uint_to_float(t_int, T_MIN, T_MAX, 12)
 
             feedback = {'position': p_out, 'velocity': v_out, 'torque': t_out, 'id': msg.ID}
             if motor_id is not None:
