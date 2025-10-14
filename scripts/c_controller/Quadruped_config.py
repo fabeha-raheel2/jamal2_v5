@@ -34,12 +34,29 @@ MOTOR_MIN_MAX_OFFSET_MULT = {'lf_hip_joint':(-25, 25, 0, -1), 'lf_upper_leg_join
                              'rh_hip_joint':(-25, 25, 0, 1), 'rh_upper_leg_joint':(-90, 20, -90, 1), 'rh_lower_leg_joint':(47, 153, 153, -0.88)
                              }
 
+SIT_TARGETS = {
+        "lf_hip_joint":  23, "lf_upper_leg_joint": 67, "lf_lower_leg_joint": -153,
+        "rf_hip_joint": -23, "rf_upper_leg_joint": 67, "rf_lower_leg_joint": -153,
+        "lh_hip_joint":  23, "lh_upper_leg_joint": -67, "lh_lower_leg_joint": 153,
+        "rh_hip_joint": -23, "rh_upper_leg_joint": -67, "rh_lower_leg_joint": 153
+        }
+
+STAND_TARGETS = {
+        "lf_hip_joint": 0, "lf_upper_leg_joint":  40, "lf_lower_leg_joint": -75,
+        "rf_hip_joint": 0, "rf_upper_leg_joint":  40, "rf_lower_leg_joint": -75,
+        "lh_hip_joint": 0, "lh_upper_leg_joint": -40, "lh_lower_leg_joint":  75,
+        "rh_hip_joint": 0, "rh_upper_leg_joint": -40, "rh_lower_leg_joint":  75
+        }
+
+LINK_LENGTHS = [0.105, 0.225, 0.250] # Lengths of Link 1 (Hip), 2 (Thigh) and 3 (Lower Leg / Shin) in meters
+
+BEND = "inward" # "forward", "backward", "inward" or "outward"
 
 # Value limits
 P_MIN, P_MAX = -12.5, 12.5
 V_MIN, V_MAX = -8.0, 8.0
 KP_MIN, KP_MAX = 1.0, 100.0
-KD_MIN, KD_MAX = 0.1, 5.0
+KD_MIN, KD_MAX = 0.0, 5.0
 T_MIN, T_MAX = -144.0, 144.0
 
 # Default control values
