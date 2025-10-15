@@ -1,4 +1,5 @@
 import rospy
+import threading
 from math import pi, acos, asin, sqrt, cos, sin, degrees, radians
 import sys
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -35,30 +36,12 @@ class Motor:
 class QuadrupedController:
     def __init__(self, publish_joint_state=False, debug=False):
         self._debug = debug
-
-        self.pcan_bus = PcanController()
-
         self.publish_joint_state = publish_joint_state
 
         self.joint_positions = []
-        self.joint_names = JOINT_NAMES
+        self.feedback_positions = []
+        self.joint_names = []
         self.current_positions = CURRENT_POSITIONS.copy()
-
-        self.a = 1.0
-        self.T = 3.0
-        self.compute_velocity()
-
-        self.epsilon = 1e-6
-
-        self.motors = MOTOR_IDS.copy()
-
-        for motor in MOTOR_IDS.keys():
-            self.motors[motor] = Motor(name=motor,
-                                       id=MOTOR_IDS[motor],
-                                       min_value=radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][0]),
-                                       max_value=radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][1]),
-                                       offset=radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][2]),
-                                       multiplier=MOTOR_MIN_MAX_OFFSET_MULT[motor][3])
 
         rospy.init_node("Motor_Control_Node")
         self.joint_position_subscriber = rospy.Subscriber('/joint_group_position_controller/command', JointTrajectory, self.position_callback)
@@ -67,11 +50,19 @@ class QuadrupedController:
         if self.publish_joint_state:
             self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
 
-        self.feedback_positions = []
-        self.joint_names = []
+        self.motors = MOTOR_IDS.copy()
+        for motor in MOTOR_IDS.keys():
+            self.motors[motor] = Motor(name=motor,
+                                       id=MOTOR_IDS[motor],
+                                       min_value=radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][0]),
+                                       max_value=radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][1]),
+                                       offset=radians(MOTOR_MIN_MAX_OFFSET_MULT[motor][2]),
+                                       multiplier=MOTOR_MIN_MAX_OFFSET_MULT[motor][3])
 
-        # MOTOR INITIALIZATION .........................
+        # MOTOR INITIALIZATION .........................     
+        self.pcan_bus = PcanController()
         self.pcan_bus.initialize()
+        
         for motor in self.motors.values():
             print(motor.name)
             self.pcan_bus.set_motor_origin(motor_id=motor.id)
@@ -80,28 +71,39 @@ class QuadrupedController:
             self.joint_names.append(motor.name)
             self.current_positions[motor.name] = motor.readjust_position(pos=0)
 
-
         # INITIAL STANDING...............................
+
+        # --- Control state flags ---
+        self.mode = "idle"        # idle, locomotion, sit, stand
+        self.is_standing = False  # track if robot is upright
+        self.is_idle = True
 
         user_input = input("Enter Joystick Command: ")
 
         if user_input == "A" or user_input == "a":
             self.stand()
 
-        # C CONTROLLER STARTS WORKING FROM HERE ............................
-
         self.publish_joint_states()
 
+    def shutdown_all_motors(self):
+        rospy.loginfo("Disabling all motors...")
+        for id in MOTOR_IDS.values():
+            self.pcan_bus.disable_motor_mode(motor_id=id)
+        self.pcan_bus.clean()
+    
     def position_callback(self, msg):
         self.joint_positions = msg.points[0].positions
 
     def joy_callback(self, msg):
-        self.sit_signal = msg.buttons[6]
-        self.stand_signal = msg.buttons[7]
+        sit_button = msg.buttons[6]
+        stand_button = msg.buttons[7]
 
-        if self.sit_signal == 1: rospy.loginfo("Sit command received")
-        elif self.stand_signal == 1: rospy.loginfo("Stand command received")
-        else: pass
+        if sit_button == 1 and self.mode != "sit":
+                rospy.loginfo("Joystick: SIT command received.")
+                self.mode = "sit"
+        elif stand_button == 1 and self.mode != "stand":
+            rospy.loginfo("Joystick: STAND command received.")
+            self.mode = "stand"
 
     def run_single_leg_loop(self, leg):
 
@@ -139,24 +141,34 @@ class QuadrupedController:
             self.feedback_positions = []
             self.joint_names = []
 
-            for motor, position in zip(self.motors.values(),self.joint_positions):
-                
-                try:
-                    position_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
-                    self.feedback_positions.append(motor.readjust_position(position_feedback))
-                    self.joint_names.append(motor.name)
-                    self.current_positions[motor.name] = motor.readjust_position(position_feedback)
+            if self.mode == "sit" and (self.is_standing or self.is_idle):
+                rospy.loginfo("Executing sit motion...")
+                self.sit()
+                self.mode = "idle"
+                self.is_standing = False
+                self.is_idle = True
 
-                except KeyboardInterrupt:
-                    print("\nDisabling motor and exiting...")
-                    
-                    for id in MOTOR_IDS.values():
-                        self.pcan_bus.disable_motor_mode(motor_id=id)
-                    
-                    self.pcan_bus.clean()
-                    break
+            elif self.mode == "stand" and (not self.is_standing):
+                rospy.loginfo("Executing stand motion...")
+                self.stand()
+                self.mode = "locomotion"
+                self.is_standing = True
+                self.is_idle = False
 
-            self.publish_joint_states()
+            elif self.mode == "locomotion" and self.is_standing:
+                for motor, position in zip(self.motors.values(),self.joint_positions):
+                    
+                    try:
+                        position_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
+                        self.feedback_positions.append(motor.readjust_position(position_feedback))
+                        self.joint_names.append(motor.name)
+                        self.current_positions[motor.name] = motor.readjust_position(position_feedback)
+
+                    except KeyboardInterrupt:
+                        self.shutdown_all_motors()
+                        break
+
+                self.publish_joint_states()
 
     def publish_joint_states(self):
         if self.publish_joint_state:
@@ -191,11 +203,7 @@ class QuadrupedController:
 
                 except KeyboardInterrupt:
                     print("\nDisabling motor and exiting...")
-                    
-                    for id in MOTOR_IDS.values():
-                        self.pcan_bus.disable_motor_mode(motor_id=id)
-                    
-                    self.pcan_bus.clean()
+                    self.shutdown_all_motors()
                     break
             rate.sleep()
 
@@ -220,11 +228,7 @@ class QuadrupedController:
 
                 except KeyboardInterrupt:
                     print("\nDisabling motor and exiting...")
-                    
-                    for id in MOTOR_IDS.values():
-                        self.pcan_bus.disable_motor_mode(motor_id=id)
-                    
-                    self.pcan_bus.clean()
+                    self.shutdown_all_motors()
                     break
             rate.sleep()
         
