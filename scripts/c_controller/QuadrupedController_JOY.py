@@ -41,6 +41,7 @@ class QuadrupedController:
 
         self.joint_positions = []
         self.joint_names = JOINT_NAMES
+        self.current_positions = CURRENT_POSITIONS.copy()
 
         self.a = 1.0
         self.T = 3.0
@@ -75,6 +76,7 @@ class QuadrupedController:
             self.pcan_bus.enable_motor_mode(motor_id=motor.id)
             # self.feedback_positions.append(motor.readjust_position(pos=0))
             self.joint_names.append(motor.name)
+            self.current_positions[motor.name] = motor.readjust_position(pos=0)
 
 
         # INITIAL STANDING...............................
@@ -133,6 +135,7 @@ class QuadrupedController:
                     position_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
                     self.feedback_positions.append(motor.readjust_position(position_feedback))
                     self.joint_names.append(motor.name)
+                    self.current_positions[motor.name] = motor.readjust_position(position_feedback)
 
                 except KeyboardInterrupt:
                     print("\nDisabling motor and exiting...")
@@ -163,16 +166,18 @@ class QuadrupedController:
         rate = rospy.Rate(10)  
         self.feedback_positions = []
         self.joint_names = []
+        current_position_values = self.current_positions.copy()
         
         rospy.loginfo("Moving to stand position...")
 
         for i in range(20): # Smooth transition over 2 seconds
             for motor in self.motors.values():
-                new_value = SIT_TARGETS[motor.name] + (STAND_TARGETS[motor.name] - SIT_TARGETS[motor.name]) * (i / 20.0)
+                new_value = current_position_values[motor.name] + (radians(STAND_TARGETS[motor.name]) - current_position_values[motor.name]) * (i / 20.0)
                 try:
                     position_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(radians(new_value)))
                     self.feedback_positions.append(motor.readjust_position(position_feedback))
                     self.joint_names.append(motor.name)
+                    self.current_positions[motor.name] = motor.readjust_position(position_feedback)
 
                 except KeyboardInterrupt:
                     print("\nDisabling motor and exiting...")
@@ -188,16 +193,20 @@ class QuadrupedController:
 
     def sit(self):
         rate = rospy.Rate(10)  
+        self.feedback_positions = []
+        self.joint_names = []
+        current_position_values = self.current_positions.copy()
         
         rospy.loginfo("Moving to sit position...")
 
         for i in range(20): # Smooth transition over 2 seconds
             for motor in self.motors.values():
-                new_value = STAND_TARGETS[motor.name] + (SIT_TARGETS[motor.name] - STAND_TARGETS[motor.name]) * (i / 20.0)
+                new_value = current_position_values[motor.name] + (radians(SIT_TARGETS[motor.name]) - current_position_values[motor.name]) * (i / 20.0)
                 try:
                     position_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(radians(new_value)))
                     self.feedback_positions.append(motor.readjust_position(position_feedback))
                     self.joint_names.append(motor.name)
+                    self.current_positions[motor.name] = motor.readjust_position(position_feedback)
 
                 except KeyboardInterrupt:
                     print("\nDisabling motor and exiting...")

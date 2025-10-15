@@ -48,6 +48,13 @@ STAND_TARGETS = {
         "rh_hip_joint": 0, "rh_upper_leg_joint": -40, "rh_lower_leg_joint":  75
         }
 
+CURRENT_POSITIONS = {
+        "lf_hip_joint": 0, "lf_upper_leg_joint":  0, "lf_lower_leg_joint":  0,
+        "rf_hip_joint": 0, "rf_upper_leg_joint":  0, "rf_lower_leg_joint":  0,
+        "lh_hip_joint": 0, "lh_upper_leg_joint":  0, "lh_lower_leg_joint":  0,
+        "rh_hip_joint": 0, "rh_upper_leg_joint":  0, "rh_lower_leg_joint":  0
+        }
+
 LINK_LENGTHS = [0.105, 0.225, 0.250] # Lengths of Link 1 (Hip), 2 (Thigh) and 3 (Lower Leg / Shin) in meters
 
 BEND = "inward" # "forward", "backward", "inward" or "outward"
