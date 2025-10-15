@@ -3,6 +3,7 @@ from math import pi, acos, asin, sqrt, cos, sin, degrees, radians
 import sys
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from sensor_msgs.msg import JointState
+from sensor_msgs.msg import Joy
 
 from Quadruped_config import *
 from PcanController import *
@@ -61,6 +62,7 @@ class QuadrupedController:
 
         rospy.init_node("Motor_Control_Node")
         self.joint_position_subscriber = rospy.Subscriber('/joint_group_position_controller/command', JointTrajectory, self.position_callback)
+        self.joystick_subscriber = rospy.Subscriber("/joy", Joy, self.joy_callback)
         
         if self.publish_joint_state:
             self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
@@ -92,6 +94,14 @@ class QuadrupedController:
 
     def position_callback(self, msg):
         self.joint_positions = msg.points[0].positions
+
+    def joy_callback(self, msg):
+        self.sit_signal = msg.buttons[6]
+        self.stand_signal = msg.buttons[7]
+
+        if self.sit_signal == 1: rospy.loginfo("Sit command received")
+        elif self.stand_signal == 1: rospy.loginfo("Stand command received")
+        else: pass
 
     def run_single_leg_loop(self, leg):
 
