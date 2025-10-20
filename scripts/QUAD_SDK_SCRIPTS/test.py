@@ -88,13 +88,14 @@ class JamalController:
         self.ID_TO_NAME = {v: k for k, v in MOTOR_IDS.items()}
 
         rospy.init_node("Motor_Control_Node")
-        self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', JointTrajectory, self.controller_callback)
+        # self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', JointTrajectory, self.controller_callback)
         
         if self.publish_joint_state:
             self.joint_state_publisher = rospy.Publisher('/motor_states', JointState, queue_size=1)
 
-        # self.pcan_bus.initialize()
+        self.pcan_bus.initialize()
         ##################################
+        print("Pcan initialized")
 
         self.feedback_positions = []
         self.joint_names = []
@@ -105,61 +106,71 @@ class JamalController:
                 if user_input == "y" or user_input == "Y":
                     for motor in self.motors.values():
                         #################################
-                        # self.pcan_bus.set_motor_origin(motor_id=motor.id)
-                        # self.pcan_bus.enable_motor_mode(motor_id=motor.id)
+                        self.pcan_bus.set_motor_origin(motor_id=motor.id)
+                        self.pcan_bus.enable_motor_mode(motor_id=motor.id)
                         ###########################################
                         # self.pcan_bus.send_position(motor_id=motor.id, pos=0)
                         self.feedback_positions.append(motor.readjust_position(pos=0))
                         # self.joint_names.append(motor.name)
                         self.joint_states['names'].append(motor.name)
                         print(motor.name)
+                    
             # else:
             #     self.feedback_positions.append(motor.readjust_position(pos=0))
-        while True:
-            try:
-                if self.publish_joint_state:
-                    # self.joint_states = {"positions":[], "velocities":[0,0,0,0,0,0,0,0,0,0,0,0], "torques":[1,1,1,1,1,1,1,1,1,1,1,1], "names":[], "id":[]}
-                    self.joint_states['velocities'] =[0,0,0,0,0,0,0,0,0,0,0,0]
-                    self.joint_states['torques'] =[1,1,1,1,1,1,1,1,1,1,1,1]
-                    
-                    # self.publish_joint_feedback()
-                    msg = JointState()
-
-                    msg.header.stamp = rospy.Time.now()
-                    # msg.name = self.joint_names
-                    msg.name = self.joint_states['names']
-                    msg.position = self.feedback_positions
-                    msg.velocity = self.joint_states['velocities']
-                    msg.effort   = self.joint_states['torques']
-
-                    self.joint_state_publisher.publish(msg)
-            except KeyboardInterrupt:
-                break
-
+        # while True:
+        #     try:
         if self.publish_joint_state:
-                # self.publish_joint_feedback()
-                msg = JointState()
+            # self.joint_states = {"positions":[], "velocities":[0,0,0,0,0,0,0,0,0,0,0,0], "torques":[1,1,1,1,1,1,1,1,1,1,1,1], "names":[], "id":[]}
+            self.joint_states['velocities'] =[0,0,0,0,0,0,0,0,0,0,0,0]
+            self.joint_states['torques'] =[1,1,1,1,1,1,1,1,1,1,1,1]
+            
+            # self.publish_joint_feedback()
+            msg = JointState()
 
-                msg.header.stamp = rospy.Time.now()
-                # msg.name = self.joint_names
-                msg.name = self.joint_states['names']
-                msg.position = self.feedback_positions
+            msg.header.stamp = rospy.Time.now()
+            # msg.name = self.joint_names
+            msg.name = self.joint_states['names']
+            msg.position = self.feedback_positions
+            msg.velocity = self.joint_states['velocities']
+            msg.effort   = self.joint_states['torques']
 
-                self.joint_state_publisher.publish(msg)
+            self.joint_state_publisher.publish(msg)
+            # except KeyboardInterrupt:
+            #     break
 
-    def controller_callback(self, msg):
-        self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[], "kd":[]}
+        # if self.publish_joint_state:
+        #         # self.publish_joint_feedback()
+        #         msg = JointState()
+
+        #         msg.header.stamp = rospy.Time.now()
+        #         # msg.name = self.joint_names
+        #         msg.name = self.joint_states['names']
+        #         msg.position = self.feedback_positions
+
+        #         self.joint_state_publisher.publish(msg)
+
+    # def controller_callback(self, msg):
+    #     self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[], "kd":[]}
     
-        # self.joint_commands["positions"] = msg.points[0].positions
-        self.joint_commands["positions"] = [0] *12
-        # self.joint_commands["velocities"] = msg.points[0].velocities
-        self.joint_commands["velocities"] = [0]*12
-        self.joint_commands["kp"] = [0] *12
-        self.joint_commands["kd"] = [0] *12
-        # self.joint_commands["torques"] = msg.points[0].effort
-        self.joint_commands["torques"] = [0] *12
+    #     # self.joint_commands["positions"] = msg.points[0].positions
+    #     self.joint_commands["positions"] = [0] *12
+    #     # self.joint_commands["velocities"] = msg.points[0].velocities
+    #     self.joint_commands["velocities"] = [0]*12
+    #     self.joint_commands["kp"] = [0] *12
+    #     self.joint_commands["kd"] = [0] *12
+    #     # self.joint_commands["torques"] = msg.points[0].effort
+    #     self.joint_commands["torques"] = [0] *12
 
         # print("Joint Commands: ", self.joint_commands)
+        #         # self.publish_joint_feedback()
+        #         msg = JointState()
+
+        #         msg.header.stamp = rospy.Time.now()
+        #         # msg.name = self.joint_names
+        #         msg.name = self.joint_states['names']
+        #         msg.position = self.feedback_positions
+
+        #         self.joint_state_publisher.publish(msg)
 
     def run_loop(self):
         while not rospy.is_shutdown():
@@ -172,6 +183,13 @@ class JamalController:
             
             
     def send_motor_commands(self):
+        self.joint_commands = {"positions":[], "velocities":[], "torques":[], "kp":[], "kd":[]}
+    
+        self.joint_commands["positions"] = [0] *12
+        self.joint_commands["velocities"] = [0]*12
+        self.joint_commands["kp"] = [0] *12
+        self.joint_commands["kd"] = [0] *12
+        self.joint_commands["torques"] = [0] *12
         self.joint_states = {"positions":[], "velocities":[], "torques":[], "names":[], "id":[]}
         self.joint_names = []
 
@@ -213,10 +231,11 @@ class JamalController:
                 else:
                     # Send the command    
                     try:
-                        # print("else condition")
+                        print("else condition")
                         feedback = {"position":[], "velocity":[], "torque":[], 'id': []}
                         feedback = self.pcan_bus.send_motor_data(motor_id=motor.id, 
-                                                                    pos=motor.adjust_position(position), 
+                                                                    # pos=motor.adjust_position(position), 
+                                                                    pos=0, 
                                                                     v_in=0,
                                                                     t_in=0,
                                                                     kp_in=0,
@@ -227,9 +246,9 @@ class JamalController:
                         self.joint_states['torques'].append(motor.readjust_torque(feedback['torque']))
                         self.joint_states['names'].append(motor.name)
                         # self.joint_states['names'].append(name)
-                        self.joint_states['id'].append((feedback['id']))
+                        # self.joint_states['id'].append((feedback['id']))
                         # self.joint_names.append(motor.name)
-                        print(self.joint_states['id'])
+                        # print(self.joint_states['id'])
                         print(self.joint_states['names'])
                         print(self.joint_states['positions'])
                         
