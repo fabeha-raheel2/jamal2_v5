@@ -91,7 +91,7 @@ class JamalController:
         self.joint_position_subscriber = rospy.Subscriber('/joint_controller/command', JointTrajectory, self.controller_callback)
         
         if self.publish_joint_state:
-            self.joint_state_publisher = rospy.Publisher('/robot_1/joint_states', JointState, queue_size=1)
+            self.joint_state_publisher = rospy.Publisher('/motor_states', JointState, queue_size=1)
 
         self.pcan_bus.initialize()
 
