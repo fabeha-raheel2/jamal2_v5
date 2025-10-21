@@ -16,7 +16,8 @@ def leg_command_callback(msg):
         for motor in leg.motor_commands:
             joint_positions.append(motor.pos_setpoint)
             joint_velocities.append(motor.vel_setpoint)
-            joint_efforts.append(motor.torque_ff)
+            # joint_efforts.append(motor.torque_ff)
+            joint_efforts.append(motor.effort)
 
     # Fill trajectory message
     point = JointTrajectoryPoint()
