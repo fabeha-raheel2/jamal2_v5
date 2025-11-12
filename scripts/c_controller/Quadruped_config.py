@@ -35,17 +35,17 @@ MOTOR_MIN_MAX_OFFSET_MULT = {'lf_hip_joint':(-25, 25, 0, -1), 'lf_upper_leg_join
                              }
 
 SIT_TARGETS = {
-        "lf_hip_joint":  23, "lf_upper_leg_joint": 67, "lf_lower_leg_joint": -153,
-        "rf_hip_joint": -23, "rf_upper_leg_joint": 67, "rf_lower_leg_joint": -153,
-        "lh_hip_joint":  23, "lh_upper_leg_joint": -67, "lh_lower_leg_joint": 153,
-        "rh_hip_joint": -23, "rh_upper_leg_joint": -67, "rh_lower_leg_joint": 153
+        "lf_hip_joint": -7, "lf_upper_leg_joint":  154, "lf_lower_leg_joint": -153,
+        "rf_hip_joint":  7, "rf_upper_leg_joint":  154, "rf_lower_leg_joint": -153,
+        "lh_hip_joint": -7, "lh_upper_leg_joint": -154, "lh_lower_leg_joint":  153,
+        "rh_hip_joint":  7, "rh_upper_leg_joint": -154, "rh_lower_leg_joint":  153
         }
 
 STAND_TARGETS = {
-        "lf_hip_joint": 0, "lf_upper_leg_joint":  40, "lf_lower_leg_joint": -75,
-        "rf_hip_joint": 0, "rf_upper_leg_joint":  40, "rf_lower_leg_joint": -75,
-        "lh_hip_joint": 0, "lh_upper_leg_joint": -40, "lh_lower_leg_joint":  75,
-        "rh_hip_joint": 0, "rh_upper_leg_joint": -40, "rh_lower_leg_joint":  75
+        "lf_hip_joint": 0, "lf_upper_leg_joint":  45, "lf_lower_leg_joint": -90,
+        "rf_hip_joint": 0, "rf_upper_leg_joint":  45, "rf_lower_leg_joint": -90,
+        "lh_hip_joint": 0, "lh_upper_leg_joint": -45, "lh_lower_leg_joint":  90,
+        "rh_hip_joint": 0, "rh_upper_leg_joint": -45, "rh_lower_leg_joint":  90
         }
 
 CURRENT_POSITIONS = {
