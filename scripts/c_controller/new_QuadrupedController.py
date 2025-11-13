@@ -161,11 +161,11 @@ class QuadrupedController:
         start_pos = self.current_positions.copy()
         rospy.loginfo("Moving to stand position...")
 
-        for i in range(20):
+        for i in range(200):
             self.feedback_positions = []
             self.joint_names = []
             for motor in self.motors.values():
-                new_value = start_pos[motor.name] + (radians(STAND_TARGETS[motor.name]) - start_pos[motor.name]) * (i / 20.0)
+                new_value = start_pos[motor.name] + (radians(STAND_TARGETS[motor.name]) - start_pos[motor.name]) * (i / 200.0)
                 feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(new_value))
                 self.feedback_positions.append(motor.readjust_position(feedback))
                 self.joint_names.append(motor.name)
@@ -180,11 +180,11 @@ class QuadrupedController:
         start_pos = self.current_positions.copy()
         rospy.loginfo("Moving to sit position...")
 
-        for i in range(20):
+        for i in range(200):
             self.feedback_positions = []
             self.joint_names = []
             for motor in self.motors.values():
-                new_value = start_pos[motor.name] + (radians(SIT_TARGETS[motor.name]) - start_pos[motor.name]) * (i / 20.0)
+                new_value = start_pos[motor.name] + (radians(SIT_TARGETS[motor.name]) - start_pos[motor.name]) * (i / 200.0)
                 feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(new_value))
                 self.feedback_positions.append(motor.readjust_position(feedback))
                 self.joint_names.append(motor.name)
