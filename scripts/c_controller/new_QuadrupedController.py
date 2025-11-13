@@ -32,6 +32,12 @@ class QuadrupedController:
         self._debug = debug
         self.publish_joint_state = publish_joint_state
 
+        # --- Control state flags ---
+        self.mode = "idle"        # idle, locomotion, sit, stand
+        self.mode_lock = threading.Lock()
+        self.is_standing = False  # track if robot is upright
+        self.stop_thread = False  # for clean exit
+
         self.pcan_bus = PcanController()
         self.pcan_bus.initialize()
 
@@ -69,12 +75,6 @@ class QuadrupedController:
             self.pcan_bus.enable_motor_mode(motor_id=motor.id)
             self.current_positions[motor.name] = motor.readjust_position(pos=0)
             self.joint_names.append(motor.name)
-
-        # --- Control state flags ---
-        self.mode = "idle"        # idle, locomotion, sit, stand
-        self.mode_lock = threading.Lock()
-        self.is_standing = False  # track if robot is upright
-        self.stop_thread = False  # for clean exit
 
         # Start the control loop thread
         self.control_thread = threading.Thread(target=self.run_control_loop, daemon=True)
