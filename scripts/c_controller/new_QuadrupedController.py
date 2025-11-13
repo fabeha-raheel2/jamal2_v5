@@ -78,11 +78,11 @@ class QuadrupedController:
             self.joint_names.append(motor.name)
 
         # Start the control loop thread
-        self.control_thread = threading.Thread(target=self.run_control_loop, daemon=True)
-        self.control_thread.start()
+        # self.control_thread = threading.Thread(target=self.run_control_loop, daemon=True)
+        # self.control_thread.start()
 
         rospy.loginfo("QuadrupedController initialized. Waiting for joystick input...")
-        rospy.spin()
+        # rospy.spin()
 
     def shutdown_all_motors(self):
         rospy.loginfo("Disabling all motors...")
@@ -197,4 +197,4 @@ class QuadrupedController:
 
 if __name__ == "__main__":
     quadruped_controller = QuadrupedController()
-    # quadruped_controller.run_control_loop()
+    quadruped_controller.run_control_loop()
