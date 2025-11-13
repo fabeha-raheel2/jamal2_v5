@@ -62,6 +62,7 @@ class PcanController:
         return feedback['position']
     
     def send_motor_data(self, motor_id, pos, v_in, kp_in, kd_in, t_in):
+        self.pcan.Reset(self.channel) ########################## added reset command  ##################################
         data = self.pack_cmd(pos, v_in, kp_in, kd_in, t_in)
         self.send_can_msg(data, id=motor_id)
         return self.receive_can_msg()
