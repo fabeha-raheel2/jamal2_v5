@@ -54,6 +54,10 @@ class QuadrupedController:
         if self.publish_joint_state:
             self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
 
+        # Stafety
+        rospy.on_shutdown(self.shutdown_all_motors)
+
+
         self.joint_positions = []
         self.feedback_positions = []
         self.joint_names = []
@@ -78,7 +82,6 @@ class QuadrupedController:
 
         rospy.loginfo("QuadrupedController initialized. Waiting for joystick input...")
         rospy.spin()
-        self.shutdown_all_motors()
 
     def shutdown_all_motors(self):
         rospy.loginfo("Disabling all motors...")
@@ -87,7 +90,8 @@ class QuadrupedController:
         self.pcan_bus.clean()
 
     def position_callback(self, msg):
-        self.joint_positions = msg.points[0].positions
+        if msg.points:
+            self.joint_positions = msg.points[0].positions
 
     def joy_callback(self, msg):
         sit_button = msg.buttons[6]
