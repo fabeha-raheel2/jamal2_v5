@@ -192,4 +192,4 @@ class QuadrupedController:
 
 if __name__ == "__main__":
     quadruped_controller = QuadrupedController()
-    quadruped_controller.run_control_loop()
+    # quadruped_controller.run_control_loop()
