@@ -28,7 +28,7 @@ class Motor:
 
 
 class QuadrupedController:
-    def __init__(self, publish_joint_state=False, debug=False):
+    def __init__(self, publish_joint_state=True, debug=False):
         self._debug = debug
         self.publish_joint_state = publish_joint_state
 
@@ -71,12 +71,12 @@ class QuadrupedController:
 
         # Initialize motors
         for motor in self.motors.values():
+            print(motor.name)
             self.pcan_bus.set_motor_origin(motor_id=motor.id)
             self.pcan_bus.enable_motor_mode(motor_id=motor.id)
             self.current_positions[motor.name] = motor.readjust_position(pos=0)
-            print(self.current_positions)
             self.joint_names.append(motor.name)
-
+        print(self.current_positions)
         # Start the control loop thread
         # self.control_thread = threading.Thread(target=self.run_control_loop, daemon=True)
         # self.control_thread.start()
@@ -91,7 +91,7 @@ class QuadrupedController:
         self.pcan_bus.clean()
 
     def position_callback(self, msg):
-        if msg.points:
+        if msg.points and self.mode == "locomotion":
             self.joint_positions = msg.points[0].positions
 
     def joy_callback(self, msg):
@@ -123,13 +123,14 @@ class QuadrupedController:
             elif current_mode == "stand":
                 rospy.loginfo("Executing stand motion...")
                 self.stand()
+                # print("/////////////////////////////////////")
                 with self.mode_lock:
                     self.mode = "locomotion"
                     self.is_standing = True
 
             elif current_mode == "locomotion":
                 # Run main locomotion loop only if robot is standing
-                if self.is_standing and self.joint_positions:
+                if self.is_standing and self.joint_positions and not self.mode == "sit":
                     self.send_locomotion_commands()
 
             rate.sleep()
@@ -142,6 +143,7 @@ class QuadrupedController:
                 pos_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
                 self.feedback_positions.append(motor.readjust_position(pos_feedback))
                 self.current_positions[motor.name] = motor.readjust_position(pos_feedback)
+                print(self.current_positions)
             except Exception as e:
                 rospy.logwarn(f"Error sending motor command: {e}")
 
@@ -160,13 +162,15 @@ class QuadrupedController:
     def stand(self):
         rate = rospy.Rate(10)
         start_pos = self.current_positions.copy()
+        print("Start Position")
+        print(start_pos)
         rospy.loginfo("Moving to stand position...")
 
-        for i in range(200):
+        for i in range(30):
             self.feedback_positions = []
             self.joint_names = []
             for motor in self.motors.values():
-                new_value = start_pos[motor.name] + (radians(STAND_TARGETS[motor.name]) - start_pos[motor.name]) * (i / 200.0)
+                new_value = start_pos[motor.name] + ((radians(STAND_TARGETS[motor.name])) - start_pos[motor.name]) * (i / 30.0)
                 feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(new_value))
                 self.feedback_positions.append(motor.readjust_position(feedback))
                 self.joint_names.append(motor.name)
@@ -179,13 +183,15 @@ class QuadrupedController:
     def sit(self):
         rate = rospy.Rate(10)
         start_pos = self.current_positions.copy()
+        print(start_pos)
         rospy.loginfo("Moving to sit position...")
 
-        for i in range(200):
+        for i in range(30):
             self.feedback_positions = []
             self.joint_names = []
             for motor in self.motors.values():
-                new_value = start_pos[motor.name] + (radians(SIT_TARGETS[motor.name]) - start_pos[motor.name]) * (i / 200.0)
+                new_value = start_pos[motor.name] + ((radians(SIT_TARGETS[motor.name])) - start_pos[motor.name]) * (i / 30.0)
+                
                 feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(new_value))
                 self.feedback_positions.append(motor.readjust_position(feedback))
                 self.joint_names.append(motor.name)

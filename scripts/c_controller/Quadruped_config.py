@@ -28,10 +28,10 @@ MOTOR_IDS = {'lf_hip_joint':0x01, 'lf_upper_leg_joint':0x02, 'lf_lower_leg_joint
              }
 
 # Min, Max and offset values in degrees 
-MOTOR_MIN_MAX_OFFSET_MULT = {'lf_hip_joint':(-25, 25, -7, -1), 'lf_upper_leg_joint':(-20, 90, 154, -1), 'lf_lower_leg_joint':(-153, -47, -153, 0.88),
-                             'rf_hip_joint':(-25, 25,  7, -1), 'rf_upper_leg_joint':(-20, 90, 154, 1),  'rf_lower_leg_joint':(-153, -47, -153, -0.88),
-                             'lh_hip_joint':(-25, 25, -7, 1),  'lh_upper_leg_joint':(-81, 20, -154, -1), 'lh_lower_leg_joint':(47, 153, 153, 0.88),
-                             'rh_hip_joint':(-25, 25,  7, 1),  'rh_upper_leg_joint':(-90, 20, -154, 1),  'rh_lower_leg_joint':(47, 153, 153, -0.88)
+MOTOR_MIN_MAX_OFFSET_MULT = {'lf_hip_joint':(-25, 25, -7, -1), 'lf_upper_leg_joint':(-20, 155, 154, -1), 'lf_lower_leg_joint':(-153, -47, -153, 0.88),
+                             'rf_hip_joint':(-25, 25,  7, -1), 'rf_upper_leg_joint':(-20, 155, 154, 1),  'rf_lower_leg_joint':(-153, -47, -153, -0.88),
+                             'lh_hip_joint':(-25, 25, -7, 1),  'lh_upper_leg_joint':(-155, 20, -154, -1), 'lh_lower_leg_joint':(47, 153, 153, 0.88),
+                             'rh_hip_joint':(-25, 25,  7, 1),  'rh_upper_leg_joint':(-155, 20, -154, 1),  'rh_lower_leg_joint':(47, 153, 153, -0.88)
                              }
 
 SIT_TARGETS = {

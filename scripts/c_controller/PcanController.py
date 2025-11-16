@@ -56,6 +56,7 @@ class PcanController:
 
     def send_position(self, motor_id, pos):
         """Send desired position and return feedback (safe with fallback)."""
+        self.pcan.Reset(self.channel) ########################## added reset command  ##################################
         data = self.pack_cmd(pos, self.v_in, self.kp_in, self.kd_in, self.t_in)
         self.send_can_msg(data, id=motor_id)
         feedback = self.receive_can_msg(motor_id=motor_id)
@@ -100,7 +101,7 @@ class PcanController:
 
             return feedback
         else:
-            print("No response from actuator.")
+            # print("No response from actuator.")
             if motor_id is not None and motor_id in self.last_feedback:
                 return self.last_feedback[motor_id]  # return last known values
             else:
