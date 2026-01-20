@@ -109,7 +109,7 @@ class QuadrupedController:
     def run_control_loop(self):
         rate = rospy.Rate(100)
 
-        while not rospy.is_shutdown():
+        while not rospy.is_shutdown() and not self.stop_thread:
             with self.mode_lock:
                 current_mode = self.mode
                 print("Current Mode: ", current_mode)
