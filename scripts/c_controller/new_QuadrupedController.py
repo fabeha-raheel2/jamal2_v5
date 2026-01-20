@@ -132,6 +132,7 @@ class QuadrupedController:
             elif current_mode == "locomotion":
                 # Run main locomotion loop only if robot is standing
                 if self.is_standing and self.joint_positions and not self.mode == "sit":
+                    print("entered in locomotion mode")
                     self.send_locomotion_commands()
 
             rate.sleep()
