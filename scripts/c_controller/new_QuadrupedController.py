@@ -112,6 +112,7 @@ class QuadrupedController:
         while not rospy.is_shutdown():
             with self.mode_lock:
                 current_mode = self.mode
+                print("Current Mode: ", current_mode)
 
             if current_mode == "sit":
                 rospy.loginfo("Executing sit motion...")
