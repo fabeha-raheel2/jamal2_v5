@@ -110,21 +110,23 @@ class QuadrupedController:
         rate = rospy.Rate(100)
 
         while not rospy.is_shutdown():
-            
-            current_mode = self.mode
+            with self.mode_lock:
+                current_mode = self.mode
 
             if current_mode == "sit":
                 rospy.loginfo("Executing sit motion...")
                 self.sit()
-                self.mode = "idle"
-                self.is_standing = False
+                with self.mode_lock:
+                    self.mode = "idle"
+                    self.is_standing = False
 
             elif current_mode == "stand":
                 rospy.loginfo("Executing stand motion...")
                 self.stand()
                 # print("/////////////////////////////////////")
-                self.mode = "locomotion"
-                self.is_standing = True
+                with self.mode_lock:
+                    self.mode = "locomotion"
+                    self.is_standing = True
 
             elif current_mode == "locomotion":
                 # Run main locomotion loop only if robot is standing
