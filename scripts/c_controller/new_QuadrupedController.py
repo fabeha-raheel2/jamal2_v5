@@ -71,12 +71,12 @@ class QuadrupedController:
 
         # Initialize motors
         for motor in self.motors.values():
-            print(motor.name)
+            # print(motor.name)
             self.pcan_bus.set_motor_origin(motor_id=motor.id)
             self.pcan_bus.enable_motor_mode(motor_id=motor.id)
             self.current_positions[motor.name] = motor.readjust_position(pos=0)
             self.joint_names.append(motor.name)
-        print(self.current_positions)
+        # print(self.current_positions)
         # Start the control loop thread
         # self.control_thread = threading.Thread(target=self.run_control_loop, daemon=True)
         # self.control_thread.start()
@@ -132,7 +132,6 @@ class QuadrupedController:
             elif current_mode == "locomotion":
                 # Run main locomotion loop only if robot is standing
                 if self.is_standing and self.joint_positions and not self.mode == "sit":
-                    print("entered in locomotion mode")
                     self.send_locomotion_commands()
 
             rate.sleep()
@@ -145,7 +144,7 @@ class QuadrupedController:
                 pos_feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(position))
                 self.feedback_positions.append(motor.readjust_position(pos_feedback))
                 self.current_positions[motor.name] = motor.readjust_position(pos_feedback)
-                print(self.current_positions)
+                # print(self.current_positions)
             except Exception as e:
                 rospy.logwarn(f"Error sending motor command: {e}")
 
@@ -185,6 +184,7 @@ class QuadrupedController:
     def sit(self):
         rate = rospy.Rate(10)
         start_pos = self.current_positions.copy()
+        print("Start Position")
         print(start_pos)
         rospy.loginfo("Moving to sit position...")
 
