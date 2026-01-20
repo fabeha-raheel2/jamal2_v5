@@ -60,7 +60,7 @@ class QuadrupedController:
         if self.publish_joint_state:
             self.joint_state_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
 
-        # Stafety
+        # Safety
         rospy.on_shutdown(self.shutdown_all_motors)
 
 
@@ -109,9 +109,9 @@ class QuadrupedController:
     def run_control_loop(self):
         rate = rospy.Rate(100)
 
-        while not rospy.is_shutdown() and not self.stop_thread:
-            with self.mode_lock:
-                current_mode = self.mode
+        while not rospy.is_shutdown():
+            
+            current_mode = self.mode
 
             if current_mode == "sit":
                 rospy.loginfo("Executing sit motion...")
