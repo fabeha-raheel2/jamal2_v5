@@ -101,7 +101,7 @@ class PcanController:
 
             return feedback
         else:
-            # print("No response from actuator.")
+            print("No response from actuator.")
             if motor_id is not None and motor_id in self.last_feedback:
                 return self.last_feedback[motor_id]  # return last known values
             else:

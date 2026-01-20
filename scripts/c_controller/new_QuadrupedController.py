@@ -71,7 +71,7 @@ class QuadrupedController:
 
         # Initialize motors
         for motor in self.motors.values():
-            # print(motor.name)
+            print(motor.name)
             self.pcan_bus.set_motor_origin(motor_id=motor.id)
             self.pcan_bus.enable_motor_mode(motor_id=motor.id)
             self.current_positions[motor.name] = motor.readjust_position(pos=0)
@@ -173,6 +173,7 @@ class QuadrupedController:
             for motor in self.motors.values():
                 new_value = start_pos[motor.name] + ((radians(STAND_TARGETS[motor.name])) - start_pos[motor.name]) * (i / 30.0)
                 feedback = self.pcan_bus.send_position(motor_id=motor.id, pos=motor.adjust_position(new_value))
+                
                 self.feedback_positions.append(motor.readjust_position(feedback))
                 self.joint_names.append(motor.name)
                 self.current_positions[motor.name] = motor.readjust_position(feedback)

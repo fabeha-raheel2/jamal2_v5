@@ -1,0 +1,19 @@
+<launch>
+    <arg name="joy"  default="true"/>
+    <arg name="dev"  default="/dev/input/js0"/>
+
+    <include file="$(find jamal2_config)/launch/hardware.launch">
+    </include>
+
+    <node if="$(arg joy)" name="joy" pkg="joy" type="joy_node" required="true">
+        <param name="autorepeat_rate" value="5" />
+        <param name="dev" value="$(arg dev)" />
+    </node>
+
+    <node name="champ_teleop" pkg="champ_teleop" type="champ_teleop.py" output="screen" required="true">
+        <param name="joy" value="$(arg joy)" />
+    </node>
+
+    <node name="c_controller" pkg="jamal2_v5" type="new_QuadrupedController.py" output="screen" required="true">
+    </node>
+</launch>
